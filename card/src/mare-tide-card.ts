@@ -156,6 +156,10 @@ export class MareTideCard extends LitElement {
 
   public connectedCallback(): void {
     super.connectedCallback();
+    // Dashboards (masonry) detach and re-attach cards while laying out columns:
+    // start watching the chart's width again once we are back in the page.
+    this._observed = undefined;
+    this.updateComplete.then(() => this._observeSize());
     this._timer = window.setInterval(() => {
       this._now = Date.now();
       if (this._config?.station_id && this._now - this._fetchedAt > HOUR) this._loadStation(true);
@@ -255,6 +259,7 @@ export class MareTideCard extends LitElement {
     const day = new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', timeZone });
     return {
       height: (v) => `${num.format(v)} m`,
+      value: (v) => num.format(v),
       axis: (v) => axis.format(v),
       time: (t) => time.format(t),
       hour: (t) => hour.format(t),
@@ -481,9 +486,10 @@ export class MareTideCard extends LitElement {
       padding-bottom: 4px;
     }
     .header {
-      display: grid;
-      grid-template-columns: 1fr auto;
+      display: flex;
+      flex-wrap: wrap;
       align-items: baseline;
+      justify-content: space-between;
       gap: 2px 12px;
       padding: 12px 16px 4px;
     }
@@ -491,6 +497,8 @@ export class MareTideCard extends LitElement {
       cursor: pointer;
     }
     .title {
+      flex: 1 1 8em;
+      min-width: 0;
       font-size: 1.15em;
       font-weight: 500;
       color: var(--primary-text-color);
@@ -502,7 +510,7 @@ export class MareTideCard extends LitElement {
       display: flex;
       align-items: baseline;
       gap: 8px;
-      justify-self: end;
+      white-space: nowrap;
     }
     .level {
       font-size: 1.6em;
@@ -526,7 +534,7 @@ export class MareTideCard extends LitElement {
       color: var(--mare-color);
     }
     .upcoming {
-      grid-column: 1 / -1;
+      flex-basis: 100%;
       display: flex;
       flex-wrap: wrap;
       gap: 2px 16px;

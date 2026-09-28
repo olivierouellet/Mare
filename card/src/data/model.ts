@@ -14,14 +14,9 @@ export function fromEntity(stateObj: HassEntity): TideData | null {
   const points = parsePoints(raw as RawPoint[]);
   if (points.length < 2) return null;
   const rawExtremes = stateObj.attributes.tide_extremes;
+  // The type sent by the sensor is not trusted: each point is checked against the curve.
   const extremes = Array.isArray(rawExtremes)
-    ? (rawExtremes as RawPoint[])
-        .map((e) => ({ t: Date.parse(e.time ?? ''), v: Number(e.value), type: e.type }))
-        .filter(
-          (e): e is TideExtreme =>
-            Number.isFinite(e.t) && Number.isFinite(e.v) && (e.type === 'high' || e.type === 'low'),
-        )
-        .sort((a, b) => a.t - b.t)
+    ? classifyExtremes(parsePoints(rawExtremes as RawPoint[]), points)
     : detectExtremes(points);
   const stationName = stateObj.attributes.station_name;
   return { points, extremes, stationName: typeof stationName === 'string' ? stationName : undefined };
@@ -50,19 +45,20 @@ export function interpolate(points: TidePoint[], t: number): number | null {
   return a.v + ((b.v - a.v) * (t - a.t)) / (b.t - a.t);
 }
 
-/** Label official high/low points: they alternate, so compare with neighbours (or the curve). */
+/**
+ * Label official high/low points as "high" or "low". The curve is the reference:
+ * a high sits above the curve two hours before and after it. Neighbouring points
+ * (highs and lows alternate) are only used when the curve does not cover the point.
+ */
 export function classifyExtremes(hilo: TidePoint[], points: TidePoint[]): TideExtreme[] {
   const out: TideExtreme[] = [];
   hilo.forEach((p, i) => {
-    const neighbours = [hilo[i - 1], hilo[i + 1]].filter((n): n is TidePoint => !!n).map((n) => n.v);
-    let ref: number[] = neighbours;
-    if (!neighbours.length || neighbours.some((n) => n === p.v)) {
-      ref = [interpolate(points, p.t - 2 * HOUR), interpolate(points, p.t + 2 * HOUR)].filter(
-        (v): v is number => v !== null,
-      );
-    }
+    let ref = [interpolate(points, p.t - 2 * HOUR), interpolate(points, p.t + 2 * HOUR)].filter(
+      (v): v is number => v !== null,
+    );
+    if (!ref.length) ref = [hilo[i - 1], hilo[i + 1]].filter((n): n is TidePoint => !!n).map((n) => n.v);
     if (!ref.length) return;
-    const avg = ref.reduce((s, v) => s + v, 0) / ref.length;
+    const avg = ref.reduce((sum, v) => sum + v, 0) / ref.length;
     out.push({ ...p, type: p.v > avg ? 'high' : 'low' });
   });
   return out;

@@ -8,6 +8,7 @@ import { HOUR, startOfDay } from './time';
 
 export interface ChartFormatters {
   height(v: number): string; // "1.84 m"
+  value(v: number): string; // "1.84"
   axis(v: number): string; // "1.5"
   time(t: number): string; // "15:04"
   hour(t: number): string; // "15:00" / "15 h" / "3 p.m."
@@ -203,12 +204,14 @@ function xAxis(
 }
 
 type Mark = TideExtreme & { x: number; y: number };
-type Mode = ExtremeLabel;
+/** Label styles from most to least detailed; "value" is the bare number, e.g. "▲1.47". */
+type Mode = ExtremeLabel | 'value';
 
 function labelTexts(m: Mark, mode: Mode, fmt: ChartFormatters): { text: string; primary: boolean }[] {
   const arrow = m.type === 'high' ? '▲' : '▼';
   const heightText = { text: `${arrow} ${fmt.height(m.v)}`, primary: true };
   const timeText = { text: fmt.time(m.t), primary: false };
+  if (mode === 'value') return [{ text: `${arrow}${fmt.value(m.v)}`, primary: true }];
   if (mode === 'height') return [heightText];
   if (mode === 'time') return [{ text: `${arrow} ${fmt.time(m.t)}`, primary: true }];
   // The primary line (height) sits closest to the point.
@@ -220,8 +223,10 @@ function labelWidth(lines: { text: string }[]): number {
 }
 
 /**
- * Place labels for one row (all highs or all lows). If neighbours overlap, the
- * whole row switches to the height only; labels that still collide are skipped.
+ * Place labels for one row (all highs or all lows). When neighbours would overlap,
+ * the whole row switches to a shorter style; if even the shortest style collides,
+ * the most pronounced highs (or lows) keep their label and the others show only
+ * their marker. A label is always drawn directly over (or under) its own point.
  */
 function placeLabels(marks: Mark[], input: ChartInput, width: number): ExtremeMark[] {
   if (!marks.length) return [];
@@ -230,28 +235,42 @@ function placeLabels(marks: Mark[], input: ChartInput, width: number): ExtremeMa
       const lines = labelTexts(m, mode, input.fmt);
       const w = labelWidth(lines);
       const labelX = Math.min(Math.max(m.x, w / 2), width - w / 2);
-      return { m, lines, w, labelX };
+      return { m, lines, w, labelX, left: labelX - w / 2, right: labelX + w / 2 };
     });
-  const overlaps = (row: ReturnType<typeof build>) =>
-    row.some((cur, i) => i > 0 && cur.labelX - row[i - 1].labelX < (cur.w + row[i - 1].w) / 2 + 4);
+  type Label = ReturnType<typeof build>[number];
+  const clear = (a: Label, b: Label) => a.right + 4 <= b.left || b.right + 4 <= a.left;
+  const overlaps = (row: Label[]) => row.some((cur, i) => i > 0 && !clear(cur, row[i - 1]));
 
-  let row = build(input.extremeLabel);
-  if (input.extremeLabel === 'height_time' && overlaps(row)) row = build('height');
+  const modes: Mode[] =
+    input.extremeLabel === 'height_time'
+      ? ['height_time', 'height', 'value']
+      : input.extremeLabel === 'height'
+        ? ['height', 'value']
+        : ['time'];
+  let row = build(modes[0]);
+  for (const mode of modes.slice(1)) {
+    if (!overlaps(row)) break;
+    row = build(mode);
+  }
 
-  const placed: ExtremeMark[] = [];
-  let lastRight = -Infinity;
-  for (const { m, lines, w, labelX } of row) {
-    const visible = labelX - w / 2 >= lastRight + 4;
-    if (visible) lastRight = labelX + w / 2;
+  // Most pronounced first: highest highs, lowest lows.
+  const priority = [...row].sort((a, b) => (a.m.type === 'high' ? b.m.v - a.m.v : a.m.v - b.m.v));
+  const kept: Label[] = [];
+  for (const label of priority) {
+    if (kept.every((k) => clear(k, label))) kept.push(label);
+  }
+
+  return row.map((label) => {
+    const { m, lines, labelX } = label;
     const count = lines.length;
-    placed.push({
+    return {
       t: m.t,
       v: m.v,
       type: m.type,
       x: m.x,
       y: m.y,
       labelX,
-      lines: visible
+      lines: kept.includes(label)
         ? lines.map((l, i) => ({
             ...l,
             // Highs stack upwards from the point, lows downwards (baseline positions).
@@ -261,7 +280,6 @@ function placeLabels(marks: Mark[], input: ChartInput, width: number): ExtremeMa
                 : m.y + LABEL_GAP + 9 + i * LINE_HEIGHT,
           }))
         : [],
-    });
-  }
-  return placed;
+    };
+  });
 }
