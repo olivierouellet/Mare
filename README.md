@@ -47,6 +47,7 @@ See the **[Setup Guide](Setup%20Guide.md)**. In short:
 - Integration tests: `pytest` (needs `pytest-homeassistant-custom-component`, Python 3.13). They use recorded DFO responses in `tests/fixtures`.
 - Card: `cd card && yarn install && yarn build`. `yarn start` serves a live dev build and a test page on port 5050.
 - The integration and the card are meant to become two HACS repositories: this folder for the integration, `card/` for the card.
+- The integration icon lives in `custom_components/dfo_tides/brand/` (Home Assistant 2026.3 or later shows it automatically). Its source is `assets/icon.svg`; after editing it, export `icon@2x.png` at 512×512 and `icon.png` at 256×256.
 
 Data: Fisheries and Oceans Canada, [Integrated Water Level System API](https://api-iwls.dfo-mpo.gc.ca/). Predictions are not for navigation.
 
@@ -89,5 +90,6 @@ Consultez le **[guide d’installation](Setup%20Guide.md#français)**. En bref :
 - Tests de l’intégration : `pytest` (requiert `pytest-homeassistant-custom-component`, Python 3.13). Ils utilisent des réponses de MPO enregistrées dans `tests/fixtures`.
 - Carte : `cd card && yarn install && yarn build`. `yarn start` sert une version de développement et une page de test sur le port 5050.
 - L’intégration et la carte deviendront deux dépôts HACS : ce dossier pour l’intégration, `card/` pour la carte.
+- L’icône de l’intégration se trouve dans `custom_components/dfo_tides/brand/` (Home Assistant 2026.3 ou plus récent l’affiche automatiquement). Sa source est `assets/icon.svg`; après une modification, exportez `icon@2x.png` en 512×512 et `icon.png` en 256×256.
 
 Données : Pêches et Océans Canada, [API du Système intégré des niveaux d’eau](https://api-iwls.dfo-mpo.gc.ca/). Les prédictions ne doivent pas servir à la navigation.
