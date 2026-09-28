@@ -60,6 +60,7 @@ Then add the card from the card picker (search for “Mare”).
 | `show_now` | `true` | Show the current time on the chart. |
 | `precision` | `2` | Decimals for heights (0 to 3). |
 | `language` | `auto` | `auto` (Home Assistant’s language), `en` or `fr`. |
+| `time_format` | `auto` | `auto` (your Home Assistant profile), `24` (15:04, or 15 h 04 in French) or `12` (3:04 p.m.). |
 
 ### Examples
 
@@ -142,6 +143,7 @@ Ajoutez ensuite la carte depuis le sélecteur de cartes (cherchez « Mare »).
 | `show_now` | `true` | Afficher l’heure actuelle sur le graphique. |
 | `precision` | `2` | Décimales des hauteurs (0 à 3). |
 | `language` | `auto` | `auto` (langue de Home Assistant), `en` ou `fr`. |
+| `time_format` | `auto` | `auto` (votre profil Home Assistant), `24` (15 h 04, ou 15:04 en anglais) ou `12` (3 h 04 p.m.). |
 
 ### Exemples
 
