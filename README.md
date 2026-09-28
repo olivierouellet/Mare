@@ -41,11 +41,23 @@ The card works **with** the integration (it reads the tide level sensor) or **wi
 
 ### Installation
 
-See the **[Setup Guide](Setup%20Guide.md)**. In short:
+**With HACS (recommended)**
 
-1. Copy `custom_components/dfo_tides` into your Home Assistant `config/custom_components/` folder (or add this repository to HACS as a custom *Integration* repository), then restart.
-2. Add the **Mare** integration from *Settings → Devices & services*.
-3. Install the card: see [Mare Tide Card](https://github.com/olivierouellet/Mare-Tide-Card) (HACS custom repository, type *Dashboard*).
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=olivierouellet&repository=Mare&category=integration)
+
+1. In Home Assistant, open **HACS** → **⋮** (top right) → **Custom repositories**.
+2. Repository: `https://github.com/olivierouellet/Mare`, type: **Integration**, then **Add**. (The button above does steps 1 and 2 for you.)
+3. Search for **Mare**, open it and click **Download**.
+4. Restart Home Assistant.
+5. Add the integration: *Settings → Devices & services → Add integration → Mare*, then pick your station.
+
+HACS then shows new versions as updates.
+
+**Manually:** copy `custom_components/dfo_tides` into your Home Assistant `config/custom_components/` folder, restart, and add the integration as in step 5.
+
+**The card:** install the [Mare Tide Card](https://github.com/olivierouellet/Mare-Tide-Card) the same way, as a HACS custom repository of type **Dashboard**.
+
+More details, including changing the station and troubleshooting, are in the **[Setup Guide](Setup%20Guide.md)**.
 
 ### Development
 
@@ -82,11 +94,23 @@ La carte fonctionne **avec** l’intégration (elle lit le capteur de niveau de 
 
 ### Installation
 
-Consultez le **[guide d’installation](Setup%20Guide.md#français)**. En bref :
+**Avec HACS (recommandé)**
 
-1. Copiez `custom_components/dfo_tides` dans le dossier `config/custom_components/` de Home Assistant (ou ajoutez ce dépôt à HACS comme dépôt personnalisé de type *Intégration*), puis redémarrez.
-2. Ajoutez l’intégration **Mare** depuis *Paramètres → Appareils et services*.
-3. Installez la carte : voir [Mare Tide Card](https://github.com/olivierouellet/Mare-Tide-Card#français) (dépôt personnalisé HACS, type *Dashboard*).
+[![Ouvrir votre instance Home Assistant et ce dépôt dans HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=olivierouellet&repository=Mare&category=integration)
+
+1. Dans Home Assistant, ouvrez **HACS** → **⋮** (en haut à droite) → **Dépôts personnalisés**.
+2. Dépôt : `https://github.com/olivierouellet/Mare`, type : **Intégration**, puis **Ajouter**. (Le bouton ci-dessus fait les étapes 1 et 2 pour vous.)
+3. Cherchez **Mare**, ouvrez-la et cliquez sur **Télécharger**.
+4. Redémarrez Home Assistant.
+5. Ajoutez l’intégration : *Paramètres → Appareils et services → Ajouter une intégration → Mare*, puis choisissez votre station.
+
+HACS affiche ensuite les nouvelles versions comme des mises à jour.
+
+**Manuellement :** copiez `custom_components/dfo_tides` dans le dossier `config/custom_components/` de Home Assistant, redémarrez et ajoutez l’intégration comme à l’étape 5.
+
+**La carte :** installez la [Mare Tide Card](https://github.com/olivierouellet/Mare-Tide-Card#français) de la même façon, comme dépôt personnalisé HACS de type **Dashboard** (tableau de bord).
+
+Plus de détails, dont le changement de station et le dépannage, dans le **[guide d’installation](Setup%20Guide.md#français)**.
 
 ### Développement
 
