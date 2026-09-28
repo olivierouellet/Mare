@@ -1,11 +1,10 @@
-# Mare: Setup Guide · Guide d’installation
+<p align="center">
+  <img src="assets/icon.svg" alt="Mare logo" width="128" height="128">
+</p>
 
-**[English](#english) · [Français](#français)**
+<h1 align="center">Mare: Setup Guide · Guide d’installation</h1>
 
-> *Mare* (pronounced **MAH-reh**, Latin for “sea”) comes from Canada’s motto, ***A mari usque ad mare***, “from sea to sea”.
-> *Mare* (prononcé **MA-ré**, « mer » en latin) vient de la devise du Canada, ***A mari usque ad mare***, « d’un océan à l’autre ».
-
----
+<p align="center"><b><a href="#english">English</a> · <a href="#français">Français</a></b></p>
 
 ## English
 
@@ -71,21 +70,6 @@ span: rolling
 hours: 48
 ```
 
-### Upgrading from the YAML version
-
-The old version was configured in `configuration.yaml`:
-
-```yaml
-sensor:
-  - platform: dfo_tides
-    name: "Halifax Tides"
-    station_id: "…"
-```
-
-After installing this version and restarting, that sensor is **imported automatically** into the UI and keeps its entity ID (e.g. `sensor.halifax_tides`). A repair notice then asks you to delete the `platform: dfo_tides` entry from `configuration.yaml` and restart.
-
-> Note: the sample configuration in the previous version of this guide used the ID `5cebf1e33d0f4a073c4bc2d8`, which is **Sandy Beach (Gaspé, QC)**, not Halifax. Halifax is `5cebf1df3d0f4a073c4bbcbb`. With the new station picker you no longer need IDs at all.
-
 ### Troubleshooting
 
 - **Logs:** *Settings → System → Logs*, search for `dfo_tides`.
@@ -144,12 +128,6 @@ span: rolling
 hours: 48
 language: fr
 ```
-
-### Mise à niveau depuis la version YAML
-
-L’ancienne version se configurait dans `configuration.yaml` (`platform: dfo_tides`). Après l’installation de cette version et un redémarrage, ce capteur est **importé automatiquement** dans l’interface et garde son identifiant d’entité (p. ex. `sensor.halifax_tides`). Un avis de réparation vous demande ensuite de retirer l’entrée `platform: dfo_tides` de `configuration.yaml` et de redémarrer.
-
-> Remarque : l’exemple de configuration de l’ancienne version de ce guide utilisait l’identifiant `5cebf1e33d0f4a073c4bc2d8`, qui correspond à **Sandy Beach (Gaspé, QC)** et non à Halifax. Halifax est `5cebf1df3d0f4a073c4bbcbb`. Avec le nouveau sélecteur de station, vous n’avez plus besoin des identifiants.
 
 ### Dépannage
 
