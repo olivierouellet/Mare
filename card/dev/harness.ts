@@ -216,6 +216,11 @@ const CASES: { title: string; config: Partial<MareTideCardConfig> }[] = [
       hours_before: 3,
     },
   },
+  { title: 'time_format: 24 (English)', config: { entity: 'sensor.halifax_tide_level', time_format: '24' } },
+  {
+    title: 'time_format: 12 (French)',
+    config: { entity: 'sensor.halifax_tide_level', time_format: '12', language: 'fr' },
+  },
   { title: 'Errors: missing entity', config: { entity: 'sensor.nope' } },
 ];
 

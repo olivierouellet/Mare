@@ -20,6 +20,7 @@ const FORM_DEFAULTS: Partial<MareTideCardConfig> = {
   show_current: true,
   precision: 2,
   language: 'auto',
+  time_format: 'auto',
 };
 
 interface FormSchema {
@@ -144,6 +145,19 @@ export class MareTideCardEditor extends LitElement {
               { value: 'auto', label: t('lang_auto') },
               { value: 'en', label: t('lang_en') },
               { value: 'fr', label: t('lang_fr') },
+            ],
+          },
+        },
+      },
+      {
+        name: 'time_format',
+        selector: {
+          select: {
+            mode: 'dropdown',
+            options: [
+              { value: 'auto', label: t('time_auto') },
+              { value: '24', label: t('time_24') },
+              { value: '12', label: t('time_12') },
             ],
           },
         },

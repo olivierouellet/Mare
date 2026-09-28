@@ -49,6 +49,7 @@ const DEFAULTS = {
   show_current: true,
   precision: 2,
   language: 'auto',
+  time_format: 'auto',
 } as const;
 
 type ResolvedConfig = MareTideCardConfig & Required<Pick<MareTideCardConfig, keyof typeof DEFAULTS>>;
@@ -252,7 +253,9 @@ export class MareTideCard extends LitElement {
     const locale = intlLocale(lang);
     const timeZone = this._tz();
     const precision = Math.min(Math.max(this._config!.precision, 0), 3);
-    const hour12Pref = resolveHour12(this.hass);
+    // The card's own setting, else the HA profile, else the language's convention.
+    const hour12Pref =
+      this._config!.time_format === '24' ? false : this._config!.time_format === '12' ? true : resolveHour12(this.hass);
     const hour12 = hour12Pref ?? new Intl.DateTimeFormat(locale, { hour: 'numeric' }).resolvedOptions().hour12 ?? false;
     const num = new Intl.NumberFormat(locale, { minimumFractionDigits: precision, maximumFractionDigits: precision });
     const axis = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });

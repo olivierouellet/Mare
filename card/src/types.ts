@@ -15,6 +15,7 @@ export interface HomeAssistant {
 }
 
 export type Language = 'auto' | 'en' | 'fr';
+export type TimeFormat = 'auto' | '12' | '24';
 export type SpanMode = 'day' | 'rolling';
 export type ExtremeLabel = 'height_time' | 'height' | 'time';
 
@@ -37,6 +38,7 @@ export interface MareTideCardConfig {
   show_current?: boolean;
   precision?: number;
   language?: Language;
+  time_format?: TimeFormat;
 }
 
 export interface TidePoint {

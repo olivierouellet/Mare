@@ -44,6 +44,10 @@
     "lang_auto": "Automatic (Home Assistant)",
     "lang_en": "English",
     "lang_fr": "Français",
+    "time_format": "Time format",
+    "time_auto": "Automatic (Home Assistant profile)",
+    "time_24": "24-hour (15:04)",
+    "time_12": "12-hour (3:04 p.m.)",
     "section_range": "Time range",
     "section_display": "Display"
   },
