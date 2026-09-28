@@ -1,13 +1,13 @@
 {
   "domain": "dfo_tides",
   "name": "Mare",
-  "codeowners": ["@yourusername"],
+  "codeowners": ["@olivierouellet"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/yourusername/mare",
+  "documentation": "https://github.com/olivierouellet/mare",
   "integration_type": "service",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/yourusername/mare/issues",
+  "issue_tracker": "https://github.com/olivierouellet/mare/issues",
   "requirements": [],
   "version": "2.0.0"
 }
