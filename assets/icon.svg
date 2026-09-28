@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Mare icon: a tide curve over the sea, with its high and low points marked. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0e7fb0"/>
+      <stop offset="1" stop-color="#053b57"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7dd3fc" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#7dd3fc" stop-opacity="0.05"/>
+    </linearGradient>
+    <clipPath id="tile"><rect width="512" height="512" rx="112"/></clipPath>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <g clip-path="url(#tile)">
+    <!-- Water under the tide curve: a sine-like wave, high at x=176, low at x=336. -->
+    <path d="M-144 150 C -86 150, -42 374, 16 374 C 74 374, 118 150, 176 150 C 234 150, 278 374, 336 374 C 394 374, 438 150, 496 150 C 554 150, 598 374, 656 374 L 656 522 L -144 522 Z" fill="url(#sea)"/>
+    <path d="M-144 150 C -86 150, -42 374, 16 374 C 74 374, 118 150, 176 150 C 234 150, 278 374, 336 374 C 394 374, 438 150, 496 150 C 554 150, 598 374, 656 374" fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/>
+  </g>
+  <!-- High and low markers, as drawn on the card. -->
+  <circle cx="176" cy="150" r="24" fill="#ffffff"/>
+  <circle cx="176" cy="150" r="11" fill="#0b6e99"/>
+  <path d="M176 70 L204 108 L148 108 Z" fill="#ffffff"/>
+  <circle cx="336" cy="374" r="24" fill="#ffffff"/>
+  <circle cx="336" cy="374" r="11" fill="#0b6e99"/>
+  <path d="M336 454 L364 416 L308 416 Z" fill="#ffffff"/>
+</svg>
