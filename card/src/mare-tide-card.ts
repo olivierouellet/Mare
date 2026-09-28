@@ -120,6 +120,7 @@ export class MareTideCard extends LitElement {
   @state() private _data: TideData | null = null;
   @state() private _error?: string;
   @state() private _width = 0;
+  @state() private _height = 0;
   @state() private _now = Date.now();
   @state() private _hover?: { x: number; t: number; v: number };
 
@@ -151,7 +152,9 @@ export class MareTideCard extends LitElement {
   }
 
   public getGridOptions() {
-    return { columns: 12, min_columns: 6 };
+    // Sections view: 4 rows by default, adjustable in the layout tab; the card fills
+    // exactly that space. Below 3 rows the chart is unreadable.
+    return { columns: 12, min_columns: 6, rows: 4, min_rows: 3 };
   }
 
   public connectedCallback(): void {
@@ -189,8 +192,9 @@ export class MareTideCard extends LitElement {
     this._observed = el;
     if (!el) return;
     this._resizeObserver = new ResizeObserver((entries) => {
-      const width = Math.round(entries[0].contentRect.width);
-      if (width && width !== this._width) this._width = width;
+      const { width, height } = entries[0].contentRect;
+      if (Math.round(width) && Math.round(width) !== this._width) this._width = Math.round(width);
+      if (Math.round(height) && Math.round(height) !== this._height) this._height = Math.round(height);
     });
     this._resizeObserver.observe(el);
   }
@@ -290,7 +294,9 @@ export class MareTideCard extends LitElement {
           message
             ? html`<div class="message">${message}</div>`
             : !this._data
-              ? html`<div class="message muted" style="height:${cfg.height}px">${t('card.loading')}</div>`
+              ? html`<div class="message muted chart-space" style="flex-basis:${cfg.height}px">
+                  ${t('card.loading')}
+                </div>`
               : this._renderChart(this._data, lang, fmt)
         }
       </ha-card>
@@ -357,6 +363,8 @@ export class MareTideCard extends LitElement {
     const cfg = this._config!;
     const { start, end } = this._span();
     const width = this._width || 0;
+    // The measured height: the configured one, or the space given by a fixed number of rows.
+    const height = this._height || cfg.height;
     const layout = width
       ? layoutChart({
           data,
@@ -364,10 +372,11 @@ export class MareTideCard extends LitElement {
           end,
           now: this._now,
           width,
-          height: cfg.height,
+          height,
           tz: this._tz(),
           showExtremes: cfg.show_extremes,
-          extremeLabel: cfg.extreme_label,
+          // Short charts keep a single label line so the curve still has room.
+          extremeLabel: cfg.extreme_label === 'height_time' && height < 170 ? 'height' : cfg.extreme_label,
           showNow: cfg.show_now,
           fmt,
         })
@@ -375,8 +384,8 @@ export class MareTideCard extends LitElement {
 
     return html`
       <div
-        class="chart"
-        style="height:${cfg.height}px"
+        class="chart chart-space"
+        style="flex-basis:${cfg.height}px"
         @pointermove=${(ev: PointerEvent) => this._onPointer(ev, layout)}
         @pointerdown=${(ev: PointerEvent) => this._onPointer(ev, layout)}
         @pointerleave=${() => (this._hover = undefined)}
@@ -400,8 +409,8 @@ export class MareTideCard extends LitElement {
     const hover = this._hover;
 
     return html`<svg
-      width=${width}
-      height=${height}
+      width="100%"
+      height="100%"
       viewBox="0 0 ${width} ${height}"
       role="img"
       aria-label=${localize('card.default_title', lang)}
@@ -480,12 +489,20 @@ export class MareTideCard extends LitElement {
   static styles = css`
     :host {
       --mare-color: var(--primary-color);
+      display: block;
+      height: 100%;
+      min-width: 0;
     }
     ha-card {
       overflow: hidden;
       padding-bottom: 4px;
+      box-sizing: border-box;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
     .header {
+      flex: 0 0 auto;
       display: flex;
       flex-wrap: wrap;
       align-items: baseline;
@@ -508,8 +525,14 @@ export class MareTideCard extends LitElement {
     }
     .current {
       display: flex;
+      flex-wrap: wrap;
       align-items: baseline;
-      gap: 8px;
+      gap: 0 8px;
+      min-width: 0;
+    }
+    .level,
+    .trend,
+    .upcoming b {
       white-space: nowrap;
     }
     .level {
@@ -545,6 +568,12 @@ export class MareTideCard extends LitElement {
       font-weight: 500;
       color: var(--primary-text-color);
     }
+    .chart-space {
+      /* Configured height by default; grows or shrinks to fill a fixed number of rows. */
+      flex: 1 1 auto;
+      min-height: 60px;
+      min-width: 0;
+    }
     .chart {
       position: relative;
       margin: 0 12px;
@@ -552,6 +581,9 @@ export class MareTideCard extends LitElement {
       user-select: none;
     }
     svg {
+      /* Out of the flow so the chart never widens or heightens its container. */
+      position: absolute;
+      inset: 0;
       display: block;
       overflow: visible;
       font-family: inherit;
