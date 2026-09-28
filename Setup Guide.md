@@ -1,171 +1,164 @@
-# DFO Tides Home Assistant Integration Setup Guide
+# Mare: Setup Guide · Guide d’installation
 
-This integration fetches tide data from the Fisheries and Oceans Canada (DFO) API and makes it available for use with ApexCharts cards in Home Assistant.
+**[English](#english) · [Français](#français)**
 
-## Installation Steps
+> *Mare* (pronounced **MAH-reh**, Latin for “sea”) comes from Canada’s motto, ***A mari usque ad mare***, “from sea to sea”.
+> *Mare* (prononcé **MA-ré**, « mer » en latin) vient de la devise du Canada, ***A mari usque ad mare***, « d’un océan à l’autre ».
 
-### 1. Create the Integration Directory Structure
+---
 
-Create the following directory structure in your Home Assistant configuration folder:
+## English
 
-```
+### 1. Install the integration
+
+**With HACS:** HACS → ⋮ → *Custom repositories* → add this repository with the type **Integration** → install **Mare** → restart Home Assistant.
+
+**Manually:** copy the `custom_components/dfo_tides` folder into your Home Assistant configuration folder, then restart:
+
+```text
 config/
 └── custom_components/
     └── dfo_tides/
         ├── __init__.py
+        ├── api.py
+        ├── config_flow.py
+        ├── const.py
+        ├── coordinator.py
         ├── manifest.json
-        └── sensor.py
+        ├── sensor.py
+        ├── strings.json
+        └── translations/
+            ├── en.json
+            └── fr.json
 ```
 
-### 2. Install the Files
+### 2. Add a tide station
 
-1. **Copy the sensor code** from the first artifact into `custom_components/dfo_tides/sensor.py`
+1. *Settings → Devices & services → Add integration* → search for **Mare**.
+2. The map starts at your home location. Keep it, or move the pin to look for stations somewhere else, then submit.
+3. Pick one of the **5 nearest stations** (each shows its code and distance), or tick *Search all stations instead* and type part of a name or code.
 
-2. **Create `__init__.py`** with this content:
-```python
-"""DFO Tides integration for Home Assistant."""
-import logging
+Repeat to add more stations.
 
-_LOGGER = logging.getLogger(__name__)
+**Sensors created** (entity IDs follow your Home Assistant language when the station is added):
 
-DOMAIN = "dfo_tides"
+| Sensor | State | Useful attributes |
+|---|---|---|
+| Tide level | Predicted level now, in metres | `trend`, `tide_data`, `tide_extremes`, `station_name` |
+| Next high tide | Time of the next high tide | `height` |
+| Next low tide | Time of the next low tide | `height` |
 
-async def async_setup(hass, config):
-    """Set up the DFO Tides component."""
-    return True
+### 3. Change the station or the refresh rate
+
+*Settings → Devices & services → Mare → Configure*
+
+- **Recalculate the current level every**: how often the current level updates (default 5 minutes). Predictions themselves are downloaded once an hour.
+- **Change station**: runs the same map → nearest stations → search steps. Your entity IDs stay the same, so cards and automations keep working.
+
+### 4. Install the card
+
+See [`card/README.md`](card/README.md): install it with HACS (type **Dashboard**) or copy `mare-tide-card.js` to `config/www/` and add it as a resource. Then add **Mare Tide Card** from the card picker and choose:
+
+- **Home Assistant sensor (Mare integration)**: pick the *tide level* sensor, or
+- **Directly from DFO (no integration)**: pick a station from the list (nearest to home, or use *Use my current position*, or search).
+
+Example:
+
+```yaml
+type: custom:mare-tide-card
+entity: sensor.halifax_tide_level
+span: rolling
+hours: 48
 ```
 
-3. **Create `manifest.json`** with this content:
-```json
-{
-  "domain": "dfo_tides",
-  "name": "DFO Tides",
-  "documentation": "https://github.com/yourusername/dfo-tides",
-  "dependencies": [],
-  "codeowners": ["@yourusername"],
-  "requirements": [],
-  "version": "1.0.0"
-}
-```
+### Upgrading from the YAML version
 
-### 3. Configure the Sensor
-
-Add this to your `configuration.yaml`:
+The old version was configured in `configuration.yaml`:
 
 ```yaml
 sensor:
   - platform: dfo_tides
     name: "Halifax Tides"
-    station_id: "5cebf1e33d0f4a073c4bc2d8"  # Replace with your station ID
-    time_series_code: "wlp"
-    update_interval: 300  # Update every 5 minutes
+    station_id: "…"
 ```
 
-### 4. Install ApexCharts Card
+After installing this version and restarting, that sensor is **imported automatically** into the UI and keeps its entity ID (e.g. `sensor.halifax_tides`). A repair notice then asks you to delete the `platform: dfo_tides` entry from `configuration.yaml` and restart.
 
-If you haven't already, install the ApexCharts card through HACS:
-1. Go to HACS → Frontend
-2. Search for "ApexCharts Card"
-3. Install it
-4. Add it to your Lovelace resources
+> Note: the sample configuration in the previous version of this guide used the ID `5cebf1e33d0f4a073c4bc2d8`, which is **Sandy Beach (Gaspé, QC)**, not Halifax. Halifax is `5cebf1df3d0f4a073c4bbcbb`. With the new station picker you no longer need IDs at all.
 
-### 5. Create the Dashboard Card
+The old ApexCharts card is in [`legacy/ApexChartsCard.yaml`](legacy/ApexChartsCard.yaml) for reference.
 
-Add this card configuration to your Lovelace dashboard:
+### Troubleshooting
+
+- **Logs:** *Settings → System → Logs*, search for `dfo_tides`.
+- **“Could not reach the DFO API”:** check that Home Assistant can reach `https://api-iwls.dfo-mpo.gc.ca`.
+- **The card says the sensor has no tide data:** pick the *tide level* sensor, not *next high/low tide*.
+- **Direct mode shows “Could not load tides from DFO”:** the browser must be able to reach `api-iwls.dfo-mpo.gc.ca` (some ad blockers or firewalls block it).
+- **“Use my current position” isn’t available:** browsers only allow it over HTTPS or in the Home Assistant app.
+- **Test the API yourself:** `https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/5cebf1df3d0f4a073c4bbcbb/data?time-series-code=wlp-hilo&from=2026-09-27T00:00:00Z&to=2026-09-28T00:00:00Z`
+
+---
+
+## Français
+
+### 1. Installer l’intégration
+
+**Avec HACS :** HACS → ⋮ → *Dépôts personnalisés* → ajoutez ce dépôt avec le type **Intégration** → installez **Mare** → redémarrez Home Assistant.
+
+**Manuellement :** copiez le dossier `custom_components/dfo_tides` dans le dossier de configuration de Home Assistant, puis redémarrez (voir l’arborescence dans la section anglaise ci-dessus).
+
+### 2. Ajouter une station de marée
+
+1. *Paramètres → Appareils et services → Ajouter une intégration* → cherchez **Mare**.
+2. La carte s’ouvre sur l’emplacement de votre domicile. Gardez-le, ou déplacez l’épingle pour chercher des stations ailleurs, puis soumettez.
+3. Choisissez l’une des **5 stations les plus proches** (chacune affiche son code et sa distance), ou cochez *Rechercher parmi toutes les stations* et tapez une partie d’un nom ou d’un code.
+
+Recommencez pour ajouter d’autres stations.
+
+**Capteurs créés** (les identifiants d’entité suivent la langue de Home Assistant au moment de l’ajout) :
+
+| Capteur | État | Attributs utiles |
+|---|---|---|
+| Niveau de marée | Niveau prédit en ce moment, en mètres | `trend`, `tide_data`, `tide_extremes`, `station_name` |
+| Prochaine marée haute | Heure de la prochaine marée haute | `height` (hauteur) |
+| Prochaine marée basse | Heure de la prochaine marée basse | `height` (hauteur) |
+
+### 3. Changer de station ou la fréquence de mise à jour
+
+*Paramètres → Appareils et services → Mare → Configurer*
+
+- **Recalculer le niveau actuel toutes les** : fréquence de mise à jour du niveau actuel (5 minutes par défaut). Les prédictions sont téléchargées une fois par heure.
+- **Changer de station** : reprend les étapes carte → stations les plus proches → recherche. Vos identifiants d’entité ne changent pas : vos cartes et automatisations continuent de fonctionner.
+
+### 4. Installer la carte
+
+Voir [`card/README.md`](card/README.md#français) : installez-la avec HACS (type **Dashboard**) ou copiez `mare-tide-card.js` dans `config/www/` et ajoutez-la comme ressource. Ajoutez ensuite **Mare Tide Card** depuis le sélecteur de cartes et choisissez :
+
+- **Capteur Home Assistant (intégration Mare)** : choisissez le capteur de *niveau de marée*, ou
+- **Directement de MPO (sans intégration)** : choisissez une station dans la liste (les plus proches du domicile, *Utiliser ma position actuelle*, ou la recherche).
+
+Exemple :
 
 ```yaml
-type: custom:apexcharts-card
-header:
-  title: Today's Tide Levels
-  show: true
-graph_span: 24h
-span:
-  start: day
-now:
-  show: true
-  label: Now
-yaxis:
-  - id: tide
-    title:
-      text: Water Level (m)
-series:
-  - entity: sensor.halifax_tides
-    name: Tide Level
-    type: line
-    stroke_width: 2
-    color: '#0066cc'
-    data_generator: |
-      return entity.attributes.tide_data.map((item) => {
-        return [new Date(item.time).getTime(), item.value];
-      });
-apex_config:
-  chart:
-    height: 400
-  xaxis:
-    type: datetime
-    labels:
-      format: HH:mm
-  tooltip:
-    x:
-      format: 'MMM dd, HH:mm'
-  stroke:
-    curve: smooth
+type: custom:mare-tide-card
+entity: sensor.halifax_niveau_de_maree
+span: rolling
+hours: 48
+language: fr
 ```
 
-## Finding Your Station ID
+### Mise à niveau depuis la version YAML
 
-To find your station ID:
+L’ancienne version se configurait dans `configuration.yaml` (`platform: dfo_tides`). Après l’installation de cette version et un redémarrage, ce capteur est **importé automatiquement** dans l’interface et garde son identifiant d’entité (p. ex. `sensor.halifax_tides`). Un avis de réparation vous demande ensuite de retirer l’entrée `platform: dfo_tides` de `configuration.yaml` et de redémarrer.
 
-1. Visit the [DFO Station Search](https://api-iwls.dfo-mpo.gc.ca/swagger-ui/index.html)
-2. Use the `/api/v1/stations` endpoint to search for stations near your location
-3. Copy the station ID from the response
+> Remarque : l’exemple de configuration de l’ancienne version de ce guide utilisait l’identifiant `5cebf1e33d0f4a073c4bc2d8`, qui correspond à **Sandy Beach (Gaspé, QC)** et non à Halifax. Halifax est `5cebf1df3d0f4a073c4bbcbb`. Avec le nouveau sélecteur de station, vous n’avez plus besoin des identifiants.
 
-Example stations:
-- Halifax: `5cebf1e33d0f4a073c4bc2d8`
-- Vancouver: `5cebf1de3d0f4a073c4bbf55`
-- Saint John: `5cebf1e23d0f4a073c4bc0ca`
+L’ancienne carte ApexCharts se trouve dans [`legacy/ApexChartsCard.yaml`](legacy/ApexChartsCard.yaml) à titre de référence.
 
-## Configuration Options
+### Dépannage
 
-| Parameter | Description | Default | Required |
-|-----------|-------------|---------|----------|
-| `name` | Friendly name for the sensor | "DFO Tides" | No |
-| `station_id` | DFO station identifier | - | Yes |
-| `time_series_code` | Data series code | "wlp" | No |
-| `update_interval` | Update frequency (seconds) | 300 | No |
-
-## Features
-
-- **Automatic daily updates**: Fetches data for the current day automatically
-- **Real-time current level**: Shows the most recent tide reading
-- **Complete day data**: Provides all tide readings for ApexCharts visualization
-- **Statistics**: Includes min/max tide levels in attributes
-- **Error handling**: Robust error handling with logging
-- **Throttled updates**: Prevents excessive API calls
-
-## Troubleshooting
-
-### Check the Logs
-
-If the integration isn't working, check Home Assistant logs:
-1. Go to Settings → System → Logs
-2. Look for entries containing "dfo_tides"
-
-### Common Issues
-
-1. **No data appearing**: Verify your station ID is correct
-2. **API errors**: Check if the DFO API is accessible from your network
-3. **Card not updating**: Ensure the entity name matches in your card configuration
-
-### Manual Testing
-
-You can test the API directly by visiting:
-```
-https://api-iwls.dfo-mpo.gc.ca/api/v1/stations/YOUR_STATION_ID/data?time-series-code=wlp&from=2025-07-24T00:00:00Z&to=2025-07-24T23:59:00Z
-```
-
-Replace `YOUR_STATION_ID` with your actual station ID.
-
-## Restart Home Assistant
-
-After installation, restart Home Assistant to load the new integration. The sensor should appear as `sensor.halifax_tides` (or whatever name you configured) and the ApexCharts card should display the tide data for the current day.
+- **Journaux :** *Paramètres → Système → Journaux*, cherchez `dfo_tides`.
+- **« Impossible de joindre l’API de MPO » :** vérifiez que Home Assistant peut joindre `https://api-iwls.dfo-mpo.gc.ca`.
+- **La carte indique que le capteur n’a pas de données de marée :** choisissez le capteur de *niveau de marée*, pas celui de la prochaine marée haute ou basse.
+- **Le mode direct affiche « Impossible de charger les marées de MPO » :** le navigateur doit pouvoir joindre `api-iwls.dfo-mpo.gc.ca` (certains bloqueurs de publicité ou pare-feu le bloquent).
+- **« Utiliser ma position actuelle » n’est pas disponible :** les navigateurs ne le permettent qu’en HTTPS ou dans l’application Home Assistant.
