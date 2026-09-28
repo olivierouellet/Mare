@@ -14,7 +14,6 @@ const FORM_DEFAULTS: Partial<MareTideCardConfig> = {
   span: 'day',
   hours: 24,
   hours_before: 6,
-  height: 220,
   show_extremes: true,
   extreme_label: 'height_time',
   show_now: true,
@@ -189,16 +188,10 @@ export class MareTideCardEditor extends LitElement {
         title: t('section_display'),
         schema: [
           {
-            name: '',
-            type: 'grid',
-            schema: [
-              {
-                name: 'height',
-                selector: { number: { min: 120, max: 600, step: 10, mode: 'box', unit_of_measurement: 'px' } },
-              },
-              { name: 'precision', selector: { number: { min: 0, max: 3, step: 1, mode: 'box' } } },
-            ],
+            name: 'height',
+            selector: { number: { min: 100, max: 600, step: 10, mode: 'box', unit_of_measurement: 'px' } },
           },
+          { name: 'precision', selector: { number: { min: 0, max: 3, step: 1, mode: 'box' } } },
           { name: 'color', selector: { ui_color: { default_color: 'primary' } } },
           {
             name: 'extreme_label',
@@ -231,7 +224,7 @@ export class MareTideCardEditor extends LitElement {
   private _computeLabel = (schema: FormSchema): string => this._t(`editor.${schema.name}`);
 
   private _computeHelper = (schema: FormSchema): string | undefined =>
-    schema.name === 'title' ? this._t('editor.title_helper') : undefined;
+    schema.name === 'title' || schema.name === 'height' ? this._t(`editor.${schema.name}_helper`) : undefined;
 
   private _sourceChanged(ev: CustomEvent): void {
     ev.stopPropagation();

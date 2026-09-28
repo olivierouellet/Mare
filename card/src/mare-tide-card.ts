@@ -125,6 +125,7 @@ export class MareTideCard extends LitElement {
   @state() private _hover?: { x: number; t: number; v: number };
 
   private _uid = `mare${++instanceCounter}`;
+  private _explicitHeight = false;
   private _stateObj?: HassEntity;
   private _fetchKey?: string;
   private _fetchedAt = 0;
@@ -137,6 +138,7 @@ export class MareTideCard extends LitElement {
     if (config.entity && config.station_id) throw new Error(localize('card.both_sources', 'en'));
     const hours = Math.min(Math.max(Number(config.hours ?? DEFAULTS.hours), MIN_HOURS), MAX_HOURS);
     const previous = this._config;
+    this._explicitHeight = config.height !== undefined && config.height !== null;
     this._config = { ...DEFAULTS, ...config, hours } as ResolvedConfig;
     if (previous?.entity !== config.entity || previous?.station_id !== config.station_id) {
       this._data = null;
@@ -152,9 +154,11 @@ export class MareTideCard extends LitElement {
   }
 
   public getGridOptions() {
-    // Sections view: 4 rows by default, adjustable in the layout tab; the card fills
-    // exactly that space. Below 3 rows the chart is unreadable.
-    return { columns: 12, min_columns: 6, rows: 4, min_rows: 3 };
+    // Sections view: an explicit `height` sizes the card itself ("auto" rows). Otherwise
+    // 4 rows by default, adjustable in the layout tab, and the card fills exactly that
+    // space. Below 3 rows the chart is unreadable.
+    const rows = this._explicitHeight ? 'auto' : 4;
+    return { columns: 12, min_columns: 6, rows, min_rows: 3 };
   }
 
   public connectedCallback(): void {
