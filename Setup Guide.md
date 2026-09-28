@@ -86,8 +86,6 @@ After installing this version and restarting, that sensor is **imported automati
 
 > Note: the sample configuration in the previous version of this guide used the ID `5cebf1e33d0f4a073c4bc2d8`, which is **Sandy Beach (Gaspé, QC)**, not Halifax. Halifax is `5cebf1df3d0f4a073c4bbcbb`. With the new station picker you no longer need IDs at all.
 
-The old ApexCharts card is in [`legacy/ApexChartsCard.yaml`](legacy/ApexChartsCard.yaml) for reference.
-
 ### Troubleshooting
 
 - **Logs:** *Settings → System → Logs*, search for `dfo_tides`.
@@ -152,8 +150,6 @@ language: fr
 L’ancienne version se configurait dans `configuration.yaml` (`platform: dfo_tides`). Après l’installation de cette version et un redémarrage, ce capteur est **importé automatiquement** dans l’interface et garde son identifiant d’entité (p. ex. `sensor.halifax_tides`). Un avis de réparation vous demande ensuite de retirer l’entrée `platform: dfo_tides` de `configuration.yaml` et de redémarrer.
 
 > Remarque : l’exemple de configuration de l’ancienne version de ce guide utilisait l’identifiant `5cebf1e33d0f4a073c4bc2d8`, qui correspond à **Sandy Beach (Gaspé, QC)** et non à Halifax. Halifax est `5cebf1df3d0f4a073c4bbcbb`. Avec le nouveau sélecteur de station, vous n’avez plus besoin des identifiants.
-
-L’ancienne carte ApexCharts se trouve dans [`legacy/ApexChartsCard.yaml`](legacy/ApexChartsCard.yaml) à titre de référence.
 
 ### Dépannage
 

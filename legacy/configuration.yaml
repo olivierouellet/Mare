@@ -1,6 +1,0 @@
-sensor:
-  - platform: dfo_tides
-    name: "Halifax Tides"
-    station_id: "5cebf1e33d0f4a073c4bc2d8"  # Replace with your station ID
-    time_series_code: "wlp"
-    update_interval: 300  # Update every 5 minutes
