@@ -134,24 +134,22 @@ def classify_extremes(
 ) -> list[tuple[datetime, float, str]]:
     """Label each high/low point as "high" or "low".
 
-    The API does not say which is which. Highs and lows alternate, so each point is
-    compared with its neighbours; a lone point is compared with the prediction curve.
+    The API does not say which is which. The prediction curve is the reference: a high
+    sits above the curve two hours before and after it. Neighbouring points (highs and
+    lows alternate) are only used when the curve does not cover the point.
     """
     extremes = []
     for i, (when, value) in enumerate(hilo):
-        neighbours = [hilo[j][1] for j in (i - 1, i + 1) if 0 <= j < len(hilo)]
-        if neighbours and all(n != value for n in neighbours):
-            kind = "high" if value > sum(neighbours) / len(neighbours) else "low"
-        else:
-            around = [
-                v
-                for v in (interpolate(points, when - timedelta(hours=2)), interpolate(points, when + timedelta(hours=2)))
-                if v is not None
-            ]
-            if not around:
-                continue
-            kind = "high" if value > sum(around) / len(around) else "low"
-        extremes.append((when, value, kind))
+        ref = [
+            v
+            for v in (interpolate(points, when - timedelta(hours=2)), interpolate(points, when + timedelta(hours=2)))
+            if v is not None
+        ]
+        if not ref:
+            ref = [hilo[j][1] for j in (i - 1, i + 1) if 0 <= j < len(hilo)]
+        if not ref:
+            continue
+        extremes.append((when, value, "high" if value > sum(ref) / len(ref) else "low"))
     return extremes
 
 
