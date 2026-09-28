@@ -1,0 +1,9 @@
+{
+  "domain": "dfo_tides",
+  "name": "DFO Tides",
+  "documentation": "https://github.com/yourusername/dfo-tides",
+  "dependencies": [],
+  "codeowners": ["@yourusername"],
+  "requirements": [],
+  "version": "1.0.0"
+}
