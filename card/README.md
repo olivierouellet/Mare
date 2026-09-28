@@ -53,7 +53,7 @@ Then add the card from the card picker (search for “Mare”).
 | `span` | `day` | `day`: start at midnight today. `rolling`: start `hours_before` hours before now. |
 | `hours` | `24` | Hours shown, from 6 to 72. |
 | `hours_before` | `6` | With `span: rolling`, hours shown before now (0 to 24). |
-| `height` | `220` | Chart height in pixels. |
+| `height` | `220` | Chart height in pixels. In a Sections view the card is 4 rows high by default (at least 3); change it in the card’s *Layout* tab, and the chart fills that space instead. |
 | `color` | theme primary | Curve colour: a theme colour name (`blue`, `teal`, `accent`…) or any CSS colour. |
 | `show_extremes` | `true` | Mark and label high and low tides. |
 | `extreme_label` | `height_time` | `height_time`, `height` or `time`. With long spans on narrow cards, labels automatically shorten to the height, and any that still overlap are hidden. |
@@ -135,7 +135,7 @@ Ajoutez ensuite la carte depuis le sélecteur de cartes (cherchez « Mare »).
 | `span` | `day` | `day` : à partir de minuit aujourd’hui. `rolling` : à partir de `hours_before` heures avant maintenant. |
 | `hours` | `24` | Heures affichées, de 6 à 72. |
 | `hours_before` | `6` | Avec `span: rolling`, heures affichées avant maintenant (0 à 24). |
-| `height` | `220` | Hauteur du graphique en pixels. |
+| `height` | `220` | Hauteur du graphique en pixels. Dans une vue Sections, la carte fait 4 rangées de haut par défaut (au moins 3); modifiez-la dans l’onglet *Mise en page* de la carte, et le graphique remplit alors cet espace. |
 | `color` | couleur principale du thème | Couleur de la courbe : un nom de couleur du thème (`blue`, `teal`, `accent`…) ou toute couleur CSS. |
 | `show_extremes` | `true` | Marquer et identifier les marées hautes et basses. |
 | `extreme_label` | `height_time` | `height_time` (hauteur et heure), `height` (hauteur) ou `time` (heure). Pour les longues plages sur des cartes étroites, les étiquettes se réduisent automatiquement à la hauteur, et celles qui se chevauchent encore sont masquées. |
