@@ -31,8 +31,6 @@
     "span_rolling": "Autour de maintenant",
     "hours": "Heures affichées",
     "hours_before": "Heures avant maintenant",
-    "height": "Hauteur du graphique (px)",
-    "height_helper": "Laissez vide pour utiliser les rangées de l’onglet Mise en page (4 par défaut) dans une vue Sections, ou 220 px ailleurs.",
     "color": "Couleur de la courbe",
     "show_extremes": "Afficher les marées hautes et basses",
     "extreme_label": "Étiquettes haute/basse",

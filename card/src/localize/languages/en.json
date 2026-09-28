@@ -31,8 +31,6 @@
     "span_rolling": "Around now",
     "hours": "Hours shown",
     "hours_before": "Hours before now",
-    "height": "Chart height (px)",
-    "height_helper": "Leave empty to use the rows from the Layout tab (4 by default) in a Sections view, or 220 px elsewhere.",
     "color": "Line color",
     "show_extremes": "Show high and low tides",
     "extreme_label": "High/low labels",
