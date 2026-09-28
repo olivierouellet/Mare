@@ -6,7 +6,7 @@
 
 <p align="center">Canadian tide predictions from DFO · Prédictions de marée canadiennes du MPO</p>
 
-**[English](#english) · [Français](#français)**
+<p align="center"><b><a href="#english">English</a> · <a href="#français">Français</a></b></p>
 
 > ### 🌊 Why “Mare”? · Pourquoi « Mare » ?
 >
