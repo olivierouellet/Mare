@@ -9,7 +9,3 @@ __pycache__/
 .venv/
 venv/
 
-# Card build
-node_modules/
-card/dist/
-card/.yarn/
