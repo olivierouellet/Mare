@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mare Tide Card – dev</title>
+    <style>
+      :root {
+        --primary-color: #03a9f4;
+        --rgb-primary-color: 3, 169, 244;
+        --accent-color: #ff9800;
+        --primary-text-color: #212121;
+        --secondary-text-color: #727272;
+        --divider-color: rgba(0, 0, 0, 0.12);
+        --card-background-color: #fff;
+        --secondary-background-color: #e5e5e5;
+        --warning-color: #ffa600;
+        --blue-color: #2196f3;
+        --teal-color: #009688;
+        --ha-card-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.14), 0 1px 5px rgba(0, 0, 0, 0.12);
+        --ha-card-border-radius: 12px;
+        --lovelace-background: #fafafa;
+      }
+      body.dark {
+        --primary-text-color: #e1e1e1;
+        --secondary-text-color: #9b9b9b;
+        --divider-color: rgba(225, 225, 225, 0.12);
+        --card-background-color: #1c1c1c;
+        --secondary-background-color: #282828;
+        --lovelace-background: #111;
+      }
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: Roboto, system-ui, sans-serif;
+        background: var(--lovelace-background);
+        color: var(--primary-text-color);
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        margin-bottom: 16px;
+        font-size: 14px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+      .cell h3 {
+        margin: 0 0 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--secondary-text-color);
+      }
+      .editor {
+        background: var(--card-background-color);
+        border-radius: 12px;
+        padding: 16px;
+      }
+      pre {
+        font-size: 11px;
+        white-space: pre-wrap;
+        color: var(--secondary-text-color);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="controls">
+      <label><input type="checkbox" id="dark" /> Dark</label>
+      <label>HA language <select id="lang"><option>en</option><option>fr</option></select></label>
+      <label>Time format <select id="tf"><option value="language">language</option><option>24</option><option>12</option></select></label>
+      <label>Card width <select id="width"><option value="">auto</option><option value="320">320 px (phone)</option><option value="500">500 px</option><option value="900">900 px</option></select></label>
+      <label>Now <input id="now" type="datetime-local" /></label>
+    </div>
+    <div class="grid" id="cards"></div>
+    <script type="module" src="./harness.js"></script>
+  </body>
+</html>

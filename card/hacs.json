@@ -1,0 +1,6 @@
+{
+  "name": "Mare Tide Card",
+  "render_readme": true,
+  "filename": "mare-tide-card.js",
+  "homeassistant": "2024.11.0"
+}
