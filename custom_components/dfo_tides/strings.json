@@ -1,0 +1,118 @@
+{
+  "config": {
+    "step": {
+      "location": {
+        "title": "Find a tide station",
+        "description": "Tide stations from Fisheries and Oceans Canada (DFO) are listed by distance from this point. It starts at your Home Assistant home location; move the pin to search somewhere else.",
+        "data": {
+          "location": "Location"
+        }
+      },
+      "station": {
+        "title": "Choose a station",
+        "description": "The nearest stations that publish tide predictions.",
+        "data": {
+          "station": "Station",
+          "search": "Search all stations instead"
+        }
+      },
+      "search": {
+        "title": "Search stations",
+        "description": "Type part of a station name or its code, then submit to see matches (nearest first).",
+        "data": {
+          "query": "Name or code",
+          "station": "Station"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the DFO API. Try again later.",
+      "no_stations": "The DFO API returned no stations.",
+      "no_match": "No station matches this search."
+    },
+    "abort": {
+      "already_configured": "This station is already set up.",
+      "cannot_connect": "Could not reach the DFO API.",
+      "unknown_station": "The station in your YAML configuration was not found in the DFO station list."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Tide station options",
+        "description": "Current station: {station}",
+        "data": {
+          "update_interval": "Recalculate the current level every",
+          "change_station": "Change station"
+        },
+        "data_description": {
+          "update_interval": "Predictions are downloaded once an hour; this only controls how often the current level is refreshed."
+        }
+      },
+      "location": {
+        "title": "Find a tide station",
+        "description": "Stations are listed by distance from this point. Move the pin to search somewhere else.",
+        "data": {
+          "location": "Location"
+        }
+      },
+      "station": {
+        "title": "Choose a station",
+        "description": "The nearest stations that publish tide predictions. Your entities keep their IDs.",
+        "data": {
+          "station": "Station",
+          "search": "Search all stations instead"
+        }
+      },
+      "search": {
+        "title": "Search stations",
+        "description": "Type part of a station name or its code, then submit to see matches (nearest first).",
+        "data": {
+          "query": "Name or code",
+          "station": "Station"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the DFO API. Try again later.",
+      "no_stations": "The DFO API returned no stations.",
+      "no_match": "No station matches this search."
+    },
+    "abort": {
+      "already_configured": "Another entry already uses this station."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "tide_level": {
+        "name": "Tide level"
+      },
+      "next_high": {
+        "name": "Next high tide",
+        "state_attributes": {
+          "height": {
+            "name": "Height"
+          }
+        }
+      },
+      "next_low": {
+        "name": "Next low tide",
+        "state_attributes": {
+          "height": {
+            "name": "Height"
+          }
+        }
+      }
+    }
+  },
+  "issues": {
+    "deprecated_yaml": {
+      "title": "Mare YAML configuration is deprecated",
+      "description": "Your `dfo_tides` sensor has been imported into the UI. Remove the `platform: dfo_tides` entry from `configuration.yaml` and restart Home Assistant. You can now change the station under Settings → Devices & services → Mare → Configure."
+    },
+    "yaml_import_failed": {
+      "title": "Mare YAML import failed",
+      "description": "Station `{station_id}` from `configuration.yaml` could not be imported. Remove the `platform: dfo_tides` entry and add the integration from Settings → Devices & services instead."
+    }
+  }
+}
