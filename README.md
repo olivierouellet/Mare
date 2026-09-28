@@ -25,7 +25,7 @@ It has two parts:
 | Part | Folder | What it does |
 |---|---|---|
 | **Mare integration** (`dfo_tides`) | [`custom_components/dfo_tides`](custom_components/dfo_tides) | Adds a tide station from the UI (nearest stations suggested) and creates sensors: current tide level, next high tide, next low tide. |
-| **Mare Tide Card** | [`card/`](card) | A Lovelace card with the tide curve, every high/low labelled with height and time, a span of up to 72 h, and a visual editor. English and French. |
+| **Mare Tide Card** | [Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card) | A Lovelace card with the tide curve, every high/low labelled with height and time, a span of up to 72 h, and a visual editor. English and French. |
 
 The card works **with** the integration (it reads the tide level sensor) or **without** it (it downloads predictions directly from DFO for a station you pick in the card editor).
 
@@ -45,13 +45,12 @@ See the **[Setup Guide](Setup%20Guide.md)**. In short:
 
 1. Copy `custom_components/dfo_tides` into your Home Assistant `config/custom_components/` folder (or add this repository to HACS as a custom *Integration* repository), then restart.
 2. Add the **Mare** integration from *Settings → Devices & services*.
-3. Install the card: see [`card/README.md`](card/README.md).
+3. Install the card: see [Mare Tide Card](https://github.com/olivierouellet/Mare-Tide-Card) (HACS custom repository, type *Dashboard*).
 
 ### Development
 
 - Integration tests: `pytest` (needs `pytest-homeassistant-custom-component`, Python 3.13). They use recorded DFO responses in `tests/fixtures`.
-- Card: `cd card && yarn install && yarn build`. `yarn start` serves a live dev build and a test page on port 5050.
-- The integration and the card are meant to become two HACS repositories: this folder for the integration, `card/` for the card.
+- The card lives in its own repository: [olivierouellet/Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card).
 - The integration icon lives in `custom_components/dfo_tides/brand/` (Home Assistant 2026.3 or later shows it automatically). Its source is `assets/icon.svg`; after editing it, export `icon@2x.png` at 512×512 and `icon.png` at 256×256.
 
 Data: Fisheries and Oceans Canada, [Integrated Water Level System API](https://api-iwls.dfo-mpo.gc.ca/). Predictions are not for navigation.
@@ -67,7 +66,7 @@ Le projet comporte deux parties :
 | Partie | Dossier | Rôle |
 |---|---|---|
 | **Intégration Mare** (`dfo_tides`) | [`custom_components/dfo_tides`](custom_components/dfo_tides) | Ajoute une station de marée depuis l’interface (stations les plus proches suggérées) et crée des capteurs : niveau de marée actuel, prochaine marée haute, prochaine marée basse. |
-| **Carte Mare Tide Card** | [`card/`](card) | Une carte Lovelace avec la courbe de marée, chaque marée haute et basse identifiée avec sa hauteur et son heure, une plage allant jusqu’à 72 h et un éditeur visuel. En français et en anglais. |
+| **Carte Mare Tide Card** | [Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card#français) | Une carte Lovelace avec la courbe de marée, chaque marée haute et basse identifiée avec sa hauteur et son heure, une plage allant jusqu’à 72 h et un éditeur visuel. En français et en anglais. |
 
 La carte fonctionne **avec** l’intégration (elle lit le capteur de niveau de marée) ou **sans** elle (elle télécharge les prédictions directement de MPO pour une station choisie dans l’éditeur de la carte).
 
@@ -87,13 +86,12 @@ Consultez le **[guide d’installation](Setup%20Guide.md#français)**. En bref :
 
 1. Copiez `custom_components/dfo_tides` dans le dossier `config/custom_components/` de Home Assistant (ou ajoutez ce dépôt à HACS comme dépôt personnalisé de type *Intégration*), puis redémarrez.
 2. Ajoutez l’intégration **Mare** depuis *Paramètres → Appareils et services*.
-3. Installez la carte : voir [`card/README.md`](card/README.md#français).
+3. Installez la carte : voir [Mare Tide Card](https://github.com/olivierouellet/Mare-Tide-Card#français) (dépôt personnalisé HACS, type *Dashboard*).
 
 ### Développement
 
 - Tests de l’intégration : `pytest` (requiert `pytest-homeassistant-custom-component`, Python 3.13). Ils utilisent des réponses de MPO enregistrées dans `tests/fixtures`.
-- Carte : `cd card && yarn install && yarn build`. `yarn start` sert une version de développement et une page de test sur le port 5050.
-- L’intégration et la carte deviendront deux dépôts HACS : ce dossier pour l’intégration, `card/` pour la carte.
+- La carte a son propre dépôt : [olivierouellet/Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card#français).
 - L’icône de l’intégration se trouve dans `custom_components/dfo_tides/brand/` (Home Assistant 2026.3 ou plus récent l’affiche automatiquement). Sa source est `assets/icon.svg`; après une modification, exportez `icon@2x.png` en 512×512 et `icon.png` en 256×256.
 
 Données : Pêches et Océans Canada, [API du Système intégré des niveaux d’eau](https://api-iwls.dfo-mpo.gc.ca/). Les prédictions ne doivent pas servir à la navigation.

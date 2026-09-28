@@ -56,7 +56,7 @@ Repeat to add more stations.
 
 ### 4. Install the card
 
-See [`card/README.md`](card/README.md): install it with HACS (type **Dashboard**) or copy `mare-tide-card.js` to `config/www/` and add it as a resource. Then add **Mare Tide Card** from the card picker and choose:
+See [Mare Tide Card](https://github.com/olivierouellet/Mare-Tide-Card): install it with HACS (type **Dashboard**) or copy `mare-tide-card.js` to `config/www/` and add it as a resource. Then add **Mare Tide Card** from the card picker and choose:
 
 - **Home Assistant sensor (Mare integration)**: pick the *tide level* sensor, or
 - **Directly from DFO (no integration)**: pick a station from the list (nearest to home, or use *Use my current position*, or search).
@@ -114,7 +114,7 @@ Recommencez pour ajouter d’autres stations.
 
 ### 4. Installer la carte
 
-Voir [`card/README.md`](card/README.md#français) : installez-la avec HACS (type **Dashboard**) ou copiez `mare-tide-card.js` dans `config/www/` et ajoutez-la comme ressource. Ajoutez ensuite **Mare Tide Card** depuis le sélecteur de cartes et choisissez :
+Voir [Mare Tide Card](https://github.com/olivierouellet/Mare-Tide-Card#français) : installez-la avec HACS (type **Dashboard**) ou copiez `mare-tide-card.js` dans `config/www/` et ajoutez-la comme ressource. Ajoutez ensuite **Mare Tide Card** depuis le sélecteur de cartes et choisissez :
 
 - **Capteur Home Assistant (intégration Mare)** : choisissez le capteur de *niveau de marée*, ou
 - **Directement de MPO (sans intégration)** : choisissez une station dans la liste (les plus proches du domicile, *Utiliser ma position actuelle*, ou la recherche).
