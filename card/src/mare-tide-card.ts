@@ -335,7 +335,7 @@ export class MareTideCard extends LitElement {
                   rising !== undefined
                     ? html`<span class="trend" title=${t(rising ? 'card.rising' : 'card.falling')}>
                         <ha-icon icon=${rising ? 'mdi:arrow-top-right' : 'mdi:arrow-bottom-right'}></ha-icon>
-                        ${t(rising ? 'card.rising' : 'card.falling')}
+                        <span class="long">${t(rising ? 'card.rising' : 'card.falling')}</span>
                       </span>`
                     : nothing
                 }
@@ -347,8 +347,9 @@ export class MareTideCard extends LitElement {
             ? html`<div class="upcoming">
                 ${upcoming.map(
                   (e) =>
-                    html`<span
-                      >${t(e.type === 'high' ? 'card.next_high' : 'card.next_low')} <b>${fmt.time(e.t)}</b> ·
+                    html`<span title=${t(e.type === 'high' ? 'card.next_high' : 'card.next_low')}
+                      ><span class="long">${t(e.type === 'high' ? 'card.next_high' : 'card.next_low')}</span
+                      ><span class="short">${e.type === 'high' ? '▲' : '▼'}</span> <b>${fmt.time(e.t)}</b> ·
                       ${fmt.height(e.v)}</span
                     >`,
                 )}
@@ -500,6 +501,7 @@ export class MareTideCard extends LitElement {
       height: 100%;
       display: flex;
       flex-direction: column;
+      container: mare-card / inline-size;
     }
     .header {
       flex: 0 0 auto;
@@ -563,6 +565,27 @@ export class MareTideCard extends LitElement {
       gap: 2px 16px;
       font-size: 0.85em;
       color: var(--secondary-text-color);
+    }
+    .short {
+      display: none;
+    }
+    /* Narrow cards (e.g. half width on a phone): symbols instead of words, fewer lines. */
+    @container mare-card (max-width: 300px) {
+      .long {
+        display: none;
+      }
+      .short {
+        display: inline;
+      }
+      .header {
+        padding: 10px 12px 2px;
+      }
+      .upcoming {
+        gap: 0 10px;
+      }
+      .upcoming > span {
+        white-space: nowrap;
+      }
     }
     .upcoming b {
       font-weight: 500;
