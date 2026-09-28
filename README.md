@@ -1,12 +1,18 @@
-# Mare
+<p align="center">
+  <img src="assets/icon.svg" alt="Mare logo" width="128" height="128">
+</p>
+
+<h1 align="center">Mare</h1>
+
+<p align="center">Canadian tide predictions from DFO · Prédictions de marée canadiennes du MPO</p>
 
 **[English](#english) · [Français](#français)**
 
 > ### 🌊 Why “Mare”? · Pourquoi « Mare » ?
 >
-> *Mare* is Latin for **sea**. The name comes from Canada’s motto, ***A mari usque ad mare*** (“from sea to sea”, Psalm 72:8), because this project covers tide stations on every Canadian coast. It is pronounced **MAH-reh** (/ˈma.re/), two syllables: not the English *mare* (a horse), and not the French *mare* (a pond).
+> *Mare* is Latin for **sea**. The name comes from Canada’s motto, ***A mari usque ad mare*** (“from sea to sea”). It is pronounced **MAH-reh** (/ˈma.re/).
 >
-> *Mare* signifie **mer** en latin. Le nom vient de la devise du Canada, ***A mari usque ad mare*** (« d’un océan à l’autre », Psaume 72:8), puisque ce projet couvre les stations de marée de toutes les côtes canadiennes. On le prononce **MA-ré** (/ˈma.re/), en deux syllabes : ce n’est ni la *mare* aux canards, ni le mot anglais *mare* (une jument).
+> *Mare* signifie **mer** en latin. Le nom vient de la devise du Canada, ***A mari usque ad mare*** (« d’un océan à l’autre »). On le prononce **MA-ré** (/ˈma.re/).
 
 ---
 
@@ -32,7 +38,6 @@ The card works **with** the integration (it reads the tide level sensor) or **wi
   - `sensor.<station>_next_high_tide` and `sensor.<station>_next_low_tide`: timestamps, with the `height` as an attribute. Handy for automations.
 - Predictions are downloaded once an hour; the current level is recalculated every 5 minutes (configurable).
 - English and French interface.
-- An old `platform: dfo_tides` YAML sensor is imported automatically and keeps its entity ID. Then remove the YAML entry.
 
 ### Installation
 
@@ -75,7 +80,6 @@ La carte fonctionne **avec** l’intégration (elle lit le capteur de niveau de 
   - Prochaine marée haute et prochaine marée basse : des horodatages, avec la hauteur (`height`) en attribut. Pratiques pour les automatisations.
 - Les prédictions sont téléchargées une fois par heure; le niveau actuel est recalculé toutes les 5 minutes (réglable).
 - Interface en français et en anglais.
-- Un ancien capteur YAML `platform: dfo_tides` est importé automatiquement et garde son identifiant d’entité. Retirez ensuite l’entrée YAML.
 
 ### Installation
 
