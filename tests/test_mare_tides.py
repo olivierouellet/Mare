@@ -9,16 +9,18 @@ from pathlib import Path
 import pytest
 
 from homeassistant import config_entries
-from homeassistant.const import CONF_LOCATION
+from homeassistant.const import CONF_API_KEY, CONF_LOCATION
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+from custom_components.mare_tides.admiralty import AdmiraltyClient
 from custom_components.mare_tides.api import TideClient, cosine_curve
 from custom_components.mare_tides.const import DOMAIN
 from custom_components.mare_tides.providers import PROVIDERS, provider_for_country
 
-from .conftest import BEDFORD_ID, BOSTON_ID, HALIFAX_ID, HULL_ID, NOW, SANDY_BEACH_ID
+from .conftest import ADMIRALTY_KEY, BEDFORD_ID, BOSTON_ID, HALIFAX_ID, HULL_ID, NOW, SANDY_BEACH_ID, load
 
 HOME = {"latitude": 44.6488, "longitude": -63.5752}
 BOSTON = {"latitude": 42.3601, "longitude": -71.0589}
@@ -309,3 +311,86 @@ async def test_rijkswaterstaat_lists_only_locations_with_predictions(hass: HomeA
     )
     values = [o["value"] for o in result["data_schema"].schema["station"].config["options"]]
     assert "hoekvanholland.splitsingsdam" not in values  # no astronomical series
+
+
+DOVER = {"latitude": 51.1279, "longitude": 1.3134}
+
+
+async def _add_dover(hass: HomeAssistant) -> config_entries.ConfigEntry:
+    await hass.config.async_set_time_zone("Europe/London")
+    result = await _start(hass, "admiralty")
+    assert result["step_id"] == "api_key"
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_API_KEY: f" {ADMIRALTY_KEY} "})
+    assert result["step_id"] == "location"
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_LOCATION: DOVER})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"station": "0089"})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+    return result["result"]
+
+
+@pytest.mark.freeze_time(NOW)
+async def test_admiralty_with_api_key(hass: HomeAssistant, admiralty_api) -> None:
+    entry = await _add_dover(hass)
+    assert entry.unique_id == "admiralty_0089"
+    assert entry.data[CONF_API_KEY] == ADMIRALTY_KEY  # trimmed
+    # The key goes in the documented header on every request.
+    assert all(headers["Ocp-Apim-Subscription-Key"] == ADMIRALTY_KEY for _, _, _, headers in admiralty_api.mock_calls)
+
+    level = hass.states.get("sensor.dover_tide_level")
+    assert level.attributes["interpolated"] is True  # Discovery only has high and low waters
+    assert level.attributes["datum"] == "Chart datum"
+    # Cosine between the 14:34 high (6.5 m) and the 20:46 low (1.0 m).
+    assert float(level.state) == pytest.approx(6.434, abs=0.001)
+    assert level.attributes["trend"] == "falling"
+    # Nothing before today's first tide is published.
+    first = datetime.fromisoformat(level.attributes["tide_data"][0]["time"])
+    assert first == datetime(2026, 9, 27, 2, 15, tzinfo=timezone.utc)
+    assert hass.states.get("sensor.dover_next_low_tide").state == "2026-09-27T20:46:00+00:00"
+
+
+@pytest.mark.freeze_time(NOW)
+async def test_admiralty_rejected_key(hass: HomeAssistant, aioclient_mock) -> None:
+    aioclient_mock.get(re.compile(r"/uktidalapi/api/V1/Stations$"), status=401)
+    result = await _start(hass, "admiralty")
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_API_KEY: "wrong"})
+    assert result["step_id"] == "api_key"
+    assert result["errors"] == {"base": "invalid_auth"}
+
+
+@pytest.mark.freeze_time(NOW)
+async def test_admiralty_expired_key_asks_for_a_new_one(hass: HomeAssistant, admiralty_api) -> None:
+    entry = await _add_dover(hass)
+
+    # The key expires: the next update is refused and Home Assistant starts a reauth flow.
+    admiralty_api.clear_requests()
+    admiralty_api.get(re.compile(r"/TidalEvents"), status=401)
+    await entry.runtime_data.async_refresh()
+    await hass.async_block_till_done()
+    flows = [f for f in hass.config_entries.flow.async_progress() if f["context"]["source"] == "reauth"]
+    assert len(flows) == 1
+
+    admiralty_api.clear_requests()
+    admiralty_api.get(re.compile(r"/uktidalapi/api/V1/Stations$"), json=load("admiralty_stations.json"))
+    admiralty_api.get(re.compile(r"/TidalEvents"), json=load("dover_events.json"))
+    result = await hass.config_entries.flow.async_configure(flows[0]["flow_id"], {CONF_API_KEY: "new-key"})
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "reauth_successful"
+    assert entry.data[CONF_API_KEY] == "new-key"
+
+
+async def test_admiralty_remembers_past_events(hass: HomeAssistant, aioclient_mock) -> None:
+    """Discovery drops each day's tides at midnight; the client keeps them for the curve."""
+    events = load("dover_events.json")
+    aioclient_mock.get(re.compile(r"/TidalEvents"), json=events)
+    client = AdmiraltyClient(async_get_clientsession(hass), ADMIRALTY_KEY)
+    start = datetime(2026, 9, 26, tzinfo=timezone.utc)
+    end = start + timedelta(days=5)
+    first = await client._async_get_extremes("0089", start, end)
+
+    aioclient_mock.clear_requests()
+    aioclient_mock.get(re.compile(r"/TidalEvents"), json=events[4:])  # the next day
+    assert await client._async_get_extremes("0089", start, end) == first
+    # Events older than the window are forgotten.
+    later = await client._async_get_extremes("0089", start + timedelta(days=2), end)
+    assert later[0][0] >= start + timedelta(days=2)

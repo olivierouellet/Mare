@@ -8,6 +8,13 @@
           "provider": "Source"
         }
       },
+      "api_key": {
+        "title": "Clé d'API",
+        "description": "Ce service demande une clé d'API gratuite. Créez-en une sur {url}, puis collez-la ici.",
+        "data": {
+          "api_key": "Clé d'API"
+        }
+      },
       "location": {
         "title": "Trouver une station de marée",
         "description": "Les stations de marée sont classées selon leur distance de ce point. Il est placé à l'emplacement de votre domicile dans Home Assistant; déplacez l'épingle pour chercher ailleurs.",
@@ -30,16 +37,25 @@
           "query": "Nom ou code",
           "station": "Station"
         }
+      },
+      "reauth_confirm": {
+        "title": "Nouvelle clé d'API",
+        "description": "Le service a refusé la clé d'API de {station} (elle a peut-être expiré). Obtenez-en une nouvelle sur {url}.",
+        "data": {
+          "api_key": "Clé d'API"
+        }
       }
     },
     "error": {
       "cannot_connect": "Impossible de joindre le service de prédictions de marée. Réessayez plus tard.",
       "no_stations": "Le service de prédictions de marée n'a retourné aucune station.",
-      "no_match": "Aucune station ne correspond à cette recherche."
+      "no_match": "Aucune station ne correspond à cette recherche.",
+      "invalid_auth": "Le service a refusé cette clé d'API."
     },
     "abort": {
       "already_configured": "Cette station est déjà configurée.",
-      "cannot_connect": "Impossible de joindre le service de prédictions de marée."
+      "cannot_connect": "Impossible de joindre le service de prédictions de marée.",
+      "reauth_successful": "La clé d'API a été mise à jour."
     }
   },
   "options": {
@@ -60,6 +76,13 @@
         "description": "Les prédictions de marée proviennent du service officiel de chaque pays.",
         "data": {
           "provider": "Source"
+        }
+      },
+      "api_key": {
+        "title": "Clé d'API",
+        "description": "Ce service demande une clé d'API gratuite. Créez-en une sur {url}, puis collez-la ici.",
+        "data": {
+          "api_key": "Clé d'API"
         }
       },
       "location": {
@@ -89,7 +112,8 @@
     "error": {
       "cannot_connect": "Impossible de joindre le service de prédictions de marée. Réessayez plus tard.",
       "no_stations": "Le service de prédictions de marée n'a retourné aucune station.",
-      "no_match": "Aucune station ne correspond à cette recherche."
+      "no_match": "Aucune station ne correspond à cette recherche.",
+      "invalid_auth": "Le service a refusé cette clé d'API."
     },
     "abort": {
       "already_configured": "Une autre entrée utilise déjà cette station."
@@ -125,7 +149,8 @@
         "noaa": "États-Unis : NOAA Tides and Currents",
         "kartverket": "Norvège : Kartverket (Autorité cartographique norvégienne)",
         "rijkswaterstaat": "Pays-Bas : Rijkswaterstaat",
-        "marine_institute": "Irlande : Marine Institute"
+        "marine_institute": "Irlande : Marine Institute",
+        "admiralty": "Royaume-Uni : ADMIRALTY (Service hydrographique du Royaume-Uni, clé d'API)"
       }
     }
   }

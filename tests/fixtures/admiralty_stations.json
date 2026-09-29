@@ -1,0 +1,107 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     1.3222,
+     51.1144
+    ]
+   },
+   "properties": {
+    "Id": "0089",
+    "Name": "Dover",
+    "Country": "England",
+    "ContinuousHeightsAvailable": true,
+    "Footnote": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     1.1833,
+     51.0833
+    ]
+   },
+   "properties": {
+    "Id": "0090",
+    "Name": "Folkestone",
+    "Country": "England",
+    "ContinuousHeightsAvailable": true,
+    "Footnote": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     1.4,
+     51.2167
+    ]
+   },
+   "properties": {
+    "Id": "0087",
+    "Name": "Deal",
+    "Country": "England",
+    "ContinuousHeightsAvailable": true,
+    "Footnote": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     1.4167,
+     51.3333
+    ]
+   },
+   "properties": {
+    "Id": "0086",
+    "Name": "Ramsgate",
+    "Country": "England",
+    "ContinuousHeightsAvailable": true,
+    "Footnote": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     1.3833,
+     51.3833
+    ]
+   },
+   "properties": {
+    "Id": "0082",
+    "Name": "Margate",
+    "Country": "England",
+    "ContinuousHeightsAvailable": true,
+    "Footnote": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -1.1167,
+     50.8
+    ]
+   },
+   "properties": {
+    "Id": "0062",
+    "Name": "Portsmouth",
+    "Country": "England",
+    "ContinuousHeightsAvailable": true,
+    "Footnote": null
+   }
+  }
+ ]
+}

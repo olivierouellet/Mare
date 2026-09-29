@@ -1,0 +1,245 @@
+[
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-09-27T02:10:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-27T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-09-27T08:22:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-27T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-09-27T14:34:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-27T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-09-27T20:46:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-27T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-09-28T02:58:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-28T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-09-28T09:10:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-28T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-09-28T15:22:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-28T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-09-28T21:34:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-28T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-09-29T03:46:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-29T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-09-29T09:58:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-29T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-09-29T16:10:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-29T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-09-29T22:22:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-29T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-09-30T04:34:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-30T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-09-30T10:46:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-30T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-09-30T16:58:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-30T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-09-30T23:10:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-09-30T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-10-01T05:22:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-01T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-10-01T11:34:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-01T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-10-01T17:46:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-01T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-10-01T23:58:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-01T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-10-02T06:10:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-02T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-10-02T12:22:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-02T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-10-02T18:34:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-02T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-10-03T00:46:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-03T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-10-03T06:58:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-03T00:00:00"
+ },
+ {
+  "EventType": "LowWater",
+  "DateTime": "2026-10-03T13:10:00",
+  "IsApproximateTime": false,
+  "Height": 1.0,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-03T00:00:00"
+ },
+ {
+  "EventType": "HighWater",
+  "DateTime": "2026-10-03T19:22:00",
+  "IsApproximateTime": false,
+  "Height": 6.5,
+  "IsApproximateHeight": false,
+  "Filtered": false,
+  "Date": "2026-10-03T00:00:00"
+ }
+]

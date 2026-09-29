@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 
+from .admiralty import AdmiraltyClient
 from .api import TideClient
 from .dfo import DfoClient
 from .kartverket import KartverketClient
@@ -21,6 +22,8 @@ class Provider:
     attribution: str
     datum: str  # what heights are measured from
     station_url: Callable[[str, str], str]  # (station id, station code) → web page
+    # Where to get an API key, for services that need one.
+    api_key_url: str | None = None
 
 
 PROVIDERS: dict[str, Provider] = {
@@ -60,6 +63,14 @@ PROVIDERS: dict[str, Provider] = {
         attribution="Marine Institute, Ireland",
         datum="OD Malin",
         station_url=lambda _id, _code: "https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html",
+    ),
+    "admiralty": Provider(
+        client=AdmiraltyClient,
+        countries=("GB", "IM", "JE", "GG"),
+        attribution="ADMIRALTY (UK Hydrographic Office)",
+        datum="Chart datum",
+        station_url=lambda _id, _code: "https://easytide.admiralty.co.uk/",
+        api_key_url="https://admiraltyapi.portal.azure-api.net/",
     ),
 }
 

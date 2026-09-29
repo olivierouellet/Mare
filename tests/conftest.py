@@ -93,3 +93,18 @@ def europe_api(aioclient_mock: AiohttpClientMocker) -> AiohttpClientMocker:
     aioclient_mock.get(re.compile(r"/imiTidePrediction\.csv\?time"), text=load_text("dublin_curve.csv"))
     aioclient_mock.get(re.compile(r"/IMI_TidePrediction_HighLow\.csv"), text=load_text("dublin_hilo.csv"))
     return aioclient_mock
+
+
+ADMIRALTY_KEY = "test-key"
+
+
+@pytest.fixture
+def admiralty_api(aioclient_mock: AiohttpClientMocker) -> AiohttpClientMocker:
+    """Serve ADMIRALTY responses for Dover.
+
+    Hand-written from the documented format (GeoJSON stations, HighWater/LowWater
+    events in UTC): without a key, real responses could not be recorded.
+    """
+    aioclient_mock.get(re.compile(r"/uktidalapi/api/V1/Stations$"), json=load("admiralty_stations.json"))
+    aioclient_mock.get(re.compile(r"/uktidalapi/api/V1/Stations/0089/TidalEvents"), json=load("dover_events.json"))
+    return aioclient_mock

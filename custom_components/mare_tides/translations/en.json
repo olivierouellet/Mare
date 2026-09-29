@@ -8,6 +8,13 @@
           "provider": "Source"
         }
       },
+      "api_key": {
+        "title": "API key",
+        "description": "This service needs a free API key. Create one at {url}, then paste it here.",
+        "data": {
+          "api_key": "API key"
+        }
+      },
       "location": {
         "title": "Find a tide station",
         "description": "Tide stations are listed by distance from this point. It starts at your Home Assistant home location; move the pin to search somewhere else.",
@@ -30,16 +37,25 @@
           "query": "Name or code",
           "station": "Station"
         }
+      },
+      "reauth_confirm": {
+        "title": "New API key",
+        "description": "The service rejected the API key for {station} (it may have expired). Get a new one at {url}.",
+        "data": {
+          "api_key": "API key"
+        }
       }
     },
     "error": {
       "cannot_connect": "Could not reach the tide prediction service. Try again later.",
       "no_stations": "The tide prediction service returned no stations.",
-      "no_match": "No station matches this search."
+      "no_match": "No station matches this search.",
+      "invalid_auth": "The service rejected this API key."
     },
     "abort": {
       "already_configured": "This station is already set up.",
-      "cannot_connect": "Could not reach the tide prediction service."
+      "cannot_connect": "Could not reach the tide prediction service.",
+      "reauth_successful": "The API key was updated."
     }
   },
   "options": {
@@ -60,6 +76,13 @@
         "description": "Tide predictions come from each country's official service.",
         "data": {
           "provider": "Source"
+        }
+      },
+      "api_key": {
+        "title": "API key",
+        "description": "This service needs a free API key. Create one at {url}, then paste it here.",
+        "data": {
+          "api_key": "API key"
         }
       },
       "location": {
@@ -89,7 +112,8 @@
     "error": {
       "cannot_connect": "Could not reach the tide prediction service. Try again later.",
       "no_stations": "The tide prediction service returned no stations.",
-      "no_match": "No station matches this search."
+      "no_match": "No station matches this search.",
+      "invalid_auth": "The service rejected this API key."
     },
     "abort": {
       "already_configured": "Another entry already uses this station."
@@ -125,7 +149,8 @@
         "noaa": "United States: NOAA Tides and Currents",
         "kartverket": "Norway: Kartverket (Norwegian Mapping Authority)",
         "rijkswaterstaat": "Netherlands: Rijkswaterstaat",
-        "marine_institute": "Ireland: Marine Institute"
+        "marine_institute": "Ireland: Marine Institute",
+        "admiralty": "United Kingdom: ADMIRALTY (UK Hydrographic Office, API key)"
       }
     }
   }

@@ -5,12 +5,14 @@ import logging
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import CONF_API_KEY
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util
 
-from .api import TideApiError, TideData
+from .api import TideApiError, TideAuthError, TideData
 from .const import (
     CONF_HILO_ONLY,
     CONF_PROVIDER,
@@ -41,7 +43,7 @@ class MareTidesCoordinator(DataUpdateCoordinator[TideData]):
             update_interval=FETCH_INTERVAL,
         )
         self.provider = PROVIDERS[entry.data[CONF_PROVIDER]]
-        self.client = self.provider.client(async_get_clientsession(hass))
+        self.client = self.provider.client(async_get_clientsession(hass), entry.data.get(CONF_API_KEY))
         self.station_id: str = entry.data[CONF_STATION_ID]
         self.hilo_only: bool = entry.data.get(CONF_HILO_ONLY, False)
 
@@ -51,5 +53,8 @@ class MareTidesCoordinator(DataUpdateCoordinator[TideData]):
         end = midnight + timedelta(days=WINDOW_DAYS_AFTER)
         try:
             return await self.client.async_get_tides(self.station_id, start, end, self.hilo_only)
+        except TideAuthError as err:
+            # Home Assistant then asks for a new key (the reauth step of the config flow).
+            raise ConfigEntryAuthFailed(str(err)) from err
         except TideApiError as err:
             raise UpdateFailed(str(err)) from err

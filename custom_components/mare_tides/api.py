@@ -26,6 +26,10 @@ class TideApiError(Exception):
     """Raised when a tide prediction service cannot be reached or returns bad data."""
 
 
+class TideAuthError(TideApiError):
+    """Raised when a service rejects the API key."""
+
+
 @dataclass(frozen=True)
 class Station:
     """A tide station that publishes predictions and high/low predictions."""
@@ -58,28 +62,34 @@ class TideClient(ABC):
     `_async_get_extremes` if some of its stations only publish highs and lows.
     """
 
-    def __init__(self, session: aiohttp.ClientSession) -> None:
+    def __init__(self, session: aiohttp.ClientSession, api_key: str | None = None) -> None:
         self._session = session
+        self._api_key = api_key
 
     async def _fetch(
         self,
         url: str | URL,
         *,
         params: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
         json: Any = None,
         text: bool = False,
         empty: frozenset[int] = frozenset(),
     ) -> Any:
         """GET `url` (POST when a `json` body is given) and decode the JSON (or `text`) answer.
 
-        Statuses in `empty` mean "no data" and return None. Network errors and other
-        non-200 answers raise TideApiError.
+        Statuses in `empty` mean "no data" and return None. A rejected API key raises
+        TideAuthError; network errors and other non-200 answers raise TideApiError.
         """
         method = "GET" if json is None else "POST"
         try:
-            async with self._session.request(method, url, params=params, json=json, timeout=TIMEOUT) as resp:
+            async with self._session.request(
+                method, url, params=params, headers=headers, json=json, timeout=TIMEOUT
+            ) as resp:
                 if resp.status in empty:
                     return None
+                if resp.status in (401, 403) and self._api_key:
+                    raise TideAuthError(f"HTTP {resp.status}: API key rejected")
                 if resp.status != 200:
                     raise TideApiError(f"HTTP {resp.status} for {url}")
                 return await resp.text() if text else await resp.json(content_type=None)

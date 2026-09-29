@@ -3,12 +3,13 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Mapping
 from typing import Any
 
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
-from homeassistant.const import CONF_LOCATION
+from homeassistant.const import CONF_API_KEY, CONF_LOCATION
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
@@ -23,9 +24,11 @@ from homeassistant.helpers.selector import (
     SelectSelectorConfig,
     SelectSelectorMode,
     TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
 )
 
-from .api import Station, TideApiError, nearest, search, station_label, station_title
+from .api import Station, TideApiError, TideAuthError, nearest, search, station_label, station_title
 from .const import (
     CONF_HILO_ONLY,
     CONF_LATITUDE,
@@ -53,14 +56,17 @@ CONF_QUERY = "query"
 CONF_CHANGE_STATION = "change_station"
 
 
-async def async_get_stations(hass: HomeAssistant, provider: str) -> list[Station]:
-    """A provider's station list, cached in memory for a day (1-2 MB, rarely changes)."""
+async def async_get_stations(hass: HomeAssistant, provider: str, api_key: str | None = None) -> list[Station]:
+    """A provider's station list, cached in memory for a day (1-2 MB, rarely changes).
+
+    Cached per key too, so a wrong key is never accepted thanks to an earlier good one.
+    """
     cache = hass.data.setdefault(DOMAIN, {}).setdefault("stations", {})
-    cached = cache.get(provider)
+    cached = cache.get((provider, api_key))
     if cached and time.monotonic() - cached[0] < STATIONS_CACHE_SECONDS:
         return cached[1]
-    stations = await PROVIDERS[provider].client(async_get_clientsession(hass)).async_get_stations()
-    cache[provider] = (time.monotonic(), stations)
+    stations = await PROVIDERS[provider].client(async_get_clientsession(hass), api_key).async_get_stations()
+    cache[(provider, api_key)] = (time.monotonic(), stations)
     return stations
 
 
@@ -81,6 +87,12 @@ def station_data(station: Station) -> dict[str, Any]:
     }
 
 
+def _api_key_schema(default: str | None) -> vol.Schema:
+    return vol.Schema(
+        {vol.Required(CONF_API_KEY, default=default or ""): TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD))}
+    )
+
+
 def _station_selector(ranked: list[tuple[Station, float]]) -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
@@ -95,6 +107,7 @@ class StationPickerMixin:
 
     hass: HomeAssistant
     _provider: str
+    _api_key: str | None = None
     _stations: list[Station]
     _location: tuple[float, float]
 
@@ -104,10 +117,22 @@ class StationPickerMixin:
     def _default_provider(self) -> str:
         return provider_for_country(self.hass.config.country)
 
+    def _default_api_key(self) -> str | None:
+        return None
+
+    def _entry_data(self, station: Station) -> dict[str, Any]:
+        data = station_data(station)
+        if self._api_key:
+            data[CONF_API_KEY] = self._api_key
+        return data
+
     async def _async_load_stations(self) -> str | None:
         """Load the chosen provider's station list; returns an error key on failure."""
         try:
-            self._stations = await async_get_stations(self.hass, self._provider)
+            self._stations = await async_get_stations(self.hass, self._provider, self._api_key)
+        except TideAuthError as err:
+            _LOGGER.warning("The %s API key was rejected: %s", self._provider, err)
+            return "invalid_auth"
         except TideApiError as err:
             _LOGGER.warning("Could not load %s stations: %s", self._provider, err)
             return "cannot_connect"
@@ -117,6 +142,9 @@ class StationPickerMixin:
         """Choose where the predictions come from (one service per country)."""
         if user_input is not None:
             self._provider = user_input[CONF_PROVIDER]
+            self._api_key = None
+            if PROVIDERS[self._provider].api_key_url:
+                return await self.async_step_api_key()
             return await self.async_step_location()
 
         return self.async_show_form(  # type: ignore[attr-defined]
@@ -130,6 +158,22 @@ class StationPickerMixin:
                     )
                 }
             ),
+        )
+
+    async def async_step_api_key(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Enter the API key for services that need one; checked by loading the stations."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            self._api_key = user_input[CONF_API_KEY].strip()
+            if (error := await self._async_load_stations()) is None:
+                return await self.async_step_location()
+            errors["base"] = error
+
+        return self.async_show_form(  # type: ignore[attr-defined]
+            step_id="api_key",
+            data_schema=_api_key_schema(self._api_key or self._default_api_key()),
+            errors=errors,
+            description_placeholders={"url": PROVIDERS[self._provider].api_key_url or ""},
         )
 
     async def async_step_location(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
@@ -205,7 +249,29 @@ class MareTidesConfigFlow(StationPickerMixin, ConfigFlow, domain=DOMAIN):
     async def _async_station_chosen(self, station: Station) -> ConfigFlowResult:
         await self.async_set_unique_id(station_unique_id(station))
         self._abort_if_unique_id_configured()
-        return self.async_create_entry(title=station.name, data=station_data(station))
+        return self.async_create_entry(title=station.name, data=self._entry_data(station))
+
+    async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> ConfigFlowResult:
+        """The service rejected the stored API key (for example, it expired)."""
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Ask for a new API key."""
+        entry = self._get_reauth_entry()
+        self._provider = entry.data[CONF_PROVIDER]
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            self._api_key = user_input[CONF_API_KEY].strip()
+            if (error := await self._async_load_stations()) is None:
+                return self.async_update_reload_and_abort(entry, data_updates={CONF_API_KEY: self._api_key})
+            errors["base"] = error
+
+        return self.async_show_form(
+            step_id="reauth_confirm",
+            data_schema=_api_key_schema(None),
+            errors=errors,
+            description_placeholders={"station": entry.title, "url": PROVIDERS[self._provider].api_key_url or ""},
+        )
 
     @staticmethod
     @callback
@@ -253,6 +319,11 @@ class MareTidesOptionsFlow(StationPickerMixin, OptionsFlow):
     def _default_provider(self) -> str:
         return self.config_entry.data[CONF_PROVIDER]
 
+    def _default_api_key(self) -> str | None:
+        """Keep the current key when staying with the same service."""
+        entry = self.config_entry
+        return entry.data.get(CONF_API_KEY) if self._provider == entry.data[CONF_PROVIDER] else None
+
     async def _async_station_chosen(self, station: Station) -> ConfigFlowResult:
         entry = self.config_entry
         unique_id = station_unique_id(station)
@@ -261,7 +332,7 @@ class MareTidesOptionsFlow(StationPickerMixin, OptionsFlow):
                 if other.entry_id != entry.entry_id and other.unique_id == unique_id:
                     return self.async_abort(reason="already_configured")
         # Keep a custom title across station changes.
-        data = station_data(station)
+        data = self._entry_data(station)
         title = station.name if entry.title == entry.data.get(CONF_STATION_NAME) else entry.title
         # One update (and one reload); returning the same options below changes nothing more.
         self.hass.config_entries.async_update_entry(
