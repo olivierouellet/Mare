@@ -1,32 +1,27 @@
-"""Client for the DFO / MPO Integrated Water Level System (IWLS) API.
+"""Shared types and helpers for the tide prediction clients.
 
 Kept free of Home Assistant imports so it can be exercised on its own.
 """
 from __future__ import annotations
 
-import asyncio
 import math
 import unicodedata
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Protocol
 
 import aiohttp
 
-BASE_URL = "https://api-iwls.dfo-mpo.gc.ca/api/v1"
 TIMEOUT = aiohttp.ClientTimeout(total=30)
 
-SERIES_PREDICTIONS = "wlp"
-SERIES_HILO = "wlp-hilo"
 
-
-class DfoApiError(Exception):
-    """Raised when the DFO API cannot be reached or returns bad data."""
+class TideApiError(Exception):
+    """Raised when a tide prediction service cannot be reached or returns bad data."""
 
 
 @dataclass(frozen=True)
 class Station:
-    """A tide station that has predictions and high/low predictions."""
+    """A tide station that publishes predictions and high/low predictions."""
 
     id: str
     code: str
@@ -34,6 +29,9 @@ class Station:
     latitude: float
     longitude: float
     operating: bool
+    provider: str
+    # Subordinate stations only publish highs and lows; their curve is interpolated.
+    subordinate: bool = False
 
 
 @dataclass
@@ -46,77 +44,16 @@ class TideData:
     end: datetime | None = None
 
 
-class DfoClient:
-    """Minimal async client for the endpoints this integration needs."""
+class TideClient(Protocol):
+    """What every provider client offers."""
 
-    def __init__(self, session: aiohttp.ClientSession) -> None:
-        self._session = session
+    def __init__(self, session: aiohttp.ClientSession) -> None: ...
 
-    async def _get(self, path: str, params: dict[str, str] | None = None) -> list[dict[str, Any]]:
-        try:
-            async with self._session.get(f"{BASE_URL}{path}", params=params, timeout=TIMEOUT) as resp:
-                if resp.status != 200:
-                    raise DfoApiError(f"HTTP {resp.status} for {path}")
-                payload = await resp.json()
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise DfoApiError(f"Error requesting {path}: {err}") from err
+    async def async_get_stations(self) -> list[Station]: ...
 
-        # The API returns a bare list; older docs show a {"data": [...]} wrapper.
-        if isinstance(payload, dict):
-            payload = payload.get("data")
-        if not isinstance(payload, list):
-            raise DfoApiError(f"Unexpected response format for {path}")
-        return payload
-
-    async def async_get_stations(self) -> list[Station]:
-        """Return all stations that publish both predictions and high/low predictions."""
-        raw = await self._get("/stations")
-        stations = []
-        for item in raw:
-            codes = {ts.get("code") for ts in item.get("timeSeries") or []}
-            if SERIES_PREDICTIONS not in codes or SERIES_HILO not in codes:
-                continue
-            try:
-                stations.append(
-                    Station(
-                        id=item["id"],
-                        code=item.get("code", ""),
-                        name=item.get("officialName") or item.get("code", item["id"]),
-                        latitude=float(item["latitude"]),
-                        longitude=float(item["longitude"]),
-                        operating=bool(item.get("operating", True)),
-                    )
-                )
-            except (KeyError, TypeError, ValueError):
-                continue
-        return stations
-
-    async def async_get_tides(self, station_id: str, start: datetime, end: datetime) -> TideData:
-        """Fetch 15-minute predictions and official high/low points between start and end."""
-        common = {"from": format_utc(start), "to": format_utc(end)}
-        raw_points, raw_hilo = await asyncio.gather(
-            self._get(
-                f"/stations/{station_id}/data",
-                {**common, "time-series-code": SERIES_PREDICTIONS, "resolution": "FIFTEEN_MINUTES"},
-            ),
-            self._get(f"/stations/{station_id}/data", {**common, "time-series-code": SERIES_HILO}),
-        )
-        points = _parse_series(raw_points)
-        if not points:
-            raise DfoApiError(f"No predictions returned for station {station_id}")
-        hilo = _parse_series(raw_hilo)
-        return TideData(points=points, extremes=classify_extremes(hilo, points), start=start, end=end)
-
-
-def _parse_series(raw: list[dict[str, Any]]) -> list[tuple[datetime, float]]:
-    series = []
-    for item in raw:
-        try:
-            series.append((parse_time(item["eventDate"]), float(item["value"])))
-        except (KeyError, TypeError, ValueError):
-            continue
-    series.sort(key=lambda p: p[0])
-    return series
+    async def async_get_tides(
+        self, station_id: str, start: datetime, end: datetime, subordinate: bool = False
+    ) -> TideData: ...
 
 
 def parse_time(value: str) -> datetime:
@@ -127,30 +64,6 @@ def parse_time(value: str) -> datetime:
 def format_utc(value: datetime) -> str:
     """Format an aware datetime as the API expects (UTC, Z suffix)."""
     return value.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def classify_extremes(
-    hilo: list[tuple[datetime, float]], points: list[tuple[datetime, float]]
-) -> list[tuple[datetime, float, str]]:
-    """Label each high/low point as "high" or "low".
-
-    The API does not say which is which. The prediction curve is the reference: a high
-    sits above the curve two hours before and after it. Neighbouring points (highs and
-    lows alternate) are only used when the curve does not cover the point.
-    """
-    extremes = []
-    for i, (when, value) in enumerate(hilo):
-        ref = [
-            v
-            for v in (interpolate(points, when - timedelta(hours=2)), interpolate(points, when + timedelta(hours=2)))
-            if v is not None
-        ]
-        if not ref:
-            ref = [hilo[j][1] for j in (i - 1, i + 1) if 0 <= j < len(hilo)]
-        if not ref:
-            continue
-        extremes.append((when, value, "high" if value > sum(ref) / len(ref) else "low"))
-    return extremes
 
 
 def interpolate(points: list[tuple[datetime, float]], when: datetime) -> float | None:
@@ -169,6 +82,32 @@ def interpolate(points: list[tuple[datetime, float]], when: datetime) -> float |
         return v0
     ratio = (when - t0).total_seconds() / (t1 - t0).total_seconds()
     return v0 + (v1 - v0) * ratio
+
+
+def cosine_curve(
+    extremes: list[tuple[datetime, float, str]],
+    start: datetime,
+    end: datetime,
+    step: timedelta = timedelta(minutes=15),
+) -> list[tuple[datetime, float]]:
+    """A water level curve through successive highs and lows, one point per `step`.
+
+    Between two extremes the level follows half a cosine, the usual way to draw a tide
+    from its highs and lows: it passes exactly through each of them and is flat at the
+    turns. Times not between two extremes are left out.
+    """
+    points: list[tuple[datetime, float]] = []
+    i = 0
+    when = start
+    while when <= end:
+        while i + 1 < len(extremes) and extremes[i + 1][0] < when:
+            i += 1
+        if i + 1 < len(extremes) and extremes[i][0] <= when:
+            (t0, h0, _), (t1, h1, _) = extremes[i], extremes[i + 1]
+            phase = math.pi * (when - t0).total_seconds() / (t1 - t0).total_seconds()
+            points.append((when, (h0 + h1) / 2 + (h0 - h1) / 2 * math.cos(phase)))
+        when += step
+    return points
 
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:

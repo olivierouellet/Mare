@@ -1,5 +1,8 @@
-"""Tests for the Mare integration: flows and sensors."""
+"""Tests for the Mare integration: flows, sensors and the NOAA client."""
 from __future__ import annotations
+
+import re
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -9,15 +12,24 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
 
+from custom_components.mare_tides.api import cosine_curve
 from custom_components.mare_tides.const import DOMAIN
 
-from .conftest import BEDFORD_ID, HALIFAX_ID, NOW, SANDY_BEACH_ID
+from .conftest import BEDFORD_ID, BOSTON_ID, HALIFAX_ID, HULL_ID, NOW, SANDY_BEACH_ID
 
 HOME = {"latitude": 44.6488, "longitude": -63.5752}
+BOSTON = {"latitude": 42.3601, "longitude": -71.0589}
+
+
+async def _start(hass: HomeAssistant, provider: str = "dfo") -> dict:
+    """Start the user flow and pick the source; returns the location step."""
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    assert result["step_id"] == "source"
+    return await hass.config_entries.flow.async_configure(result["flow_id"], {"provider": provider})
 
 
 async def _add_halifax(hass: HomeAssistant) -> config_entries.ConfigEntry:
-    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    result = await _start(hass)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_LOCATION: HOME})
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"station": HALIFAX_ID})
     assert result["type"] is FlowResultType.CREATE_ENTRY
@@ -30,6 +42,9 @@ async def test_user_flow_lists_nearest_stations(halifax_home, dfo_api) -> None:
     hass = halifax_home
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "source"
+    assert result["data_schema"]({})["provider"] == "dfo"  # default outside the US
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"provider": "dfo"})
     assert result["step_id"] == "location"
 
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_LOCATION: HOME})
@@ -44,13 +59,13 @@ async def test_user_flow_lists_nearest_stations(halifax_home, dfo_api) -> None:
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"station": HALIFAX_ID})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == "Halifax"
-    assert result["result"].unique_id == HALIFAX_ID
+    assert result["result"].unique_id == f"dfo_{HALIFAX_ID}"
 
 
 @pytest.mark.freeze_time(NOW)
 async def test_search_flow(halifax_home, dfo_api) -> None:
     hass = halifax_home
-    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    result = await _start(hass)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_LOCATION: HOME})
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"search": True})
     assert result["step_id"] == "search"
@@ -72,7 +87,7 @@ async def test_search_flow(halifax_home, dfo_api) -> None:
 async def test_duplicate_station_aborts(halifax_home, dfo_api) -> None:
     hass = halifax_home
     await _add_halifax(hass)
-    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    result = await _start(hass)
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_LOCATION: HOME})
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"station": HALIFAX_ID})
     assert result["type"] is FlowResultType.ABORT
@@ -89,6 +104,9 @@ async def test_sensors(halifax_home, dfo_api) -> None:
     # 12:00 ADT on 2026-09-27 is between the 09:01 high (1.837 m) and the 15:28 low (0.181 m).
     assert float(level.state) == pytest.approx(1.039)
     assert level.attributes["unit_of_measurement"] == "m"
+    assert level.attributes["provider"] == "dfo"
+    assert level.attributes["interpolated"] is False
+    assert level.attributes["attribution"] == "Fisheries and Oceans Canada / Pêches et Océans Canada"
     assert level.attributes["trend"] == "falling"
     assert len(level.attributes["tide_data"]) == 481
     kinds = [e["type"] for e in level.attributes["tide_extremes"]]
@@ -113,15 +131,97 @@ async def test_options_flow_changes_station_keeps_entity_ids(halifax_home, dfo_a
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], {"update_interval": 120, "change_station": True}
     )
+    assert result["step_id"] == "source"
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {"provider": "dfo"})
     assert result["step_id"] == "location"
     result = await hass.config_entries.options.async_configure(result["flow_id"], {CONF_LOCATION: HOME})
     result = await hass.config_entries.options.async_configure(result["flow_id"], {"station": BEDFORD_ID})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
 
-    assert entry.unique_id == BEDFORD_ID
+    assert entry.unique_id == f"dfo_{BEDFORD_ID}"
     assert entry.title == "Bedford Institute"
     assert entry.options["update_interval"] == 120
     after = {e.unique_id: e.entity_id for e in er.async_entries_for_config_entry(registry, entry.entry_id)}
     assert after == before
     assert hass.states.get("sensor.halifax_tide_level").attributes["station_name"] == "Bedford Institute"
+
+
+@pytest.mark.freeze_time(NOW)
+async def test_noaa_reference_station(boston_home, noaa_api) -> None:
+    hass = boston_home
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    assert result["data_schema"]({})["provider"] == "noaa"  # default in the US
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"provider": "noaa"})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_LOCATION: BOSTON})
+    labels = [o["label"] for o in result["data_schema"].schema["station"].config["options"]]
+    assert labels[0] == "BOSTON, MA · 8443970 · 1.0 km"
+
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"station": BOSTON_ID})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["result"].unique_id == f"noaa_{BOSTON_ID}"
+    await hass.async_block_till_done()
+
+    level = hass.states.get("sensor.boston_ma_tide_level")
+    # 15:00 UTC is a recorded 15-minute point, between the 10:03 low and the 16:12 high.
+    assert float(level.state) == pytest.approx(2.938)
+    assert level.attributes["trend"] == "rising"
+    assert level.attributes["provider"] == "noaa"
+    assert level.attributes["interpolated"] is False
+    assert level.attributes["attribution"] == "NOAA Tides and Currents"
+    assert len(level.attributes["tide_data"]) == 481
+    kinds = [e["type"] for e in level.attributes["tide_extremes"]]
+    assert all(a != b for a, b in zip(kinds, kinds[1:]))
+
+    next_high = hass.states.get("sensor.boston_ma_next_high_tide")
+    next_low = hass.states.get("sensor.boston_ma_next_low_tide")
+    assert next_high.state == "2026-09-27T16:12:00+00:00"
+    assert next_high.attributes["height"] == 3.235
+    assert next_low.state == "2026-09-27T22:27:00+00:00"
+    assert next_low.attributes["height"] == -0.1
+
+
+@pytest.mark.freeze_time(NOW)
+async def test_noaa_subordinate_station(boston_home, noaa_api) -> None:
+    hass = boston_home
+    result = await _start(hass, "noaa")
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_LOCATION: BOSTON})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"search": True})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"query": "hull"})
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"query": "hull", "station": HULL_ID})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["result"].data["subordinate"] is True
+    await hass.async_block_till_done()
+
+    level = hass.states.get("sensor.hull_ma_tide_level")
+    assert level.attributes["interpolated"] is True
+    # Cosine between the 10:10 low (0.023 m) and the 16:17 high (3.138 m), 290 of 367 minutes in.
+    assert float(level.state) == pytest.approx(2.812, abs=0.001)
+    assert level.attributes["trend"] == "rising"
+    # The whole window is covered, even before the first and after the last extreme in it.
+    assert len(level.attributes["tide_data"]) == 481
+    heights = [e["value"] for e in level.attributes["tide_extremes"]]
+    assert all(min(heights) - 0.2 <= p["value"] <= max(heights) + 0.2 for p in level.attributes["tide_data"])
+    assert hass.states.get("sensor.hull_ma_next_high_tide").state == "2026-09-27T16:17:00+00:00"
+
+
+@pytest.mark.freeze_time(NOW)
+async def test_noaa_error_body(boston_home, aioclient_mock) -> None:
+    """NOAA reports errors with HTTP 200 and an "error" object."""
+    hass = boston_home
+    aioclient_mock.get(re.compile(r"/webapi/stations\.json"), json={"error": {"message": "Service unavailable"}})
+    result = await _start(hass, "noaa")
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_LOCATION: BOSTON})
+    assert result["errors"] == {"base": "cannot_connect"}
+
+
+def test_cosine_curve() -> None:
+    t0 = datetime(2026, 9, 27, tzinfo=timezone.utc)
+    extremes = [(t0, 1.0, "high"), (t0 + timedelta(hours=6), 0.0, "low"), (t0 + timedelta(hours=12), 1.0, "high")]
+    curve = dict(cosine_curve(extremes, t0 - timedelta(hours=1), t0 + timedelta(hours=13), timedelta(hours=1)))
+    assert min(curve) == t0 and max(curve) == t0 + timedelta(hours=12)  # nothing outside the extremes
+    assert curve[t0] == pytest.approx(1.0)
+    assert curve[t0 + timedelta(hours=3)] == pytest.approx(0.5)
+    assert curve[t0 + timedelta(hours=6)] == pytest.approx(0.0)
+    assert curve[t0 + timedelta(hours=9)] == pytest.approx(0.5)
+    assert curve[t0 + timedelta(hours=12)] == pytest.approx(1.0)

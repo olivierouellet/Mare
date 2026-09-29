@@ -1,4 +1,4 @@
-"""Config and options flows for DFO Tides: pick a station near a location or by name."""
+"""Config and options flows for Mare: pick a source, then a station near a location or by name."""
 from __future__ import annotations
 
 import logging
@@ -25,13 +25,15 @@ from homeassistant.helpers.selector import (
     TextSelector,
 )
 
-from .api import DfoApiError, DfoClient, Station, nearest, search, station_label
+from .api import Station, TideApiError, nearest, search, station_label
 from .const import (
     CONF_LATITUDE,
     CONF_LONGITUDE,
+    CONF_PROVIDER,
     CONF_STATION_CODE,
     CONF_STATION_ID,
     CONF_STATION_NAME,
+    CONF_SUBORDINATE,
     CONF_UPDATE_INTERVAL,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
@@ -40,6 +42,7 @@ from .const import (
     NEAREST_COUNT,
     SEARCH_LIMIT,
 )
+from .providers import PROVIDERS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,24 +53,31 @@ CONF_QUERY = "query"
 CONF_CHANGE_STATION = "change_station"
 
 
-async def async_get_stations(hass: HomeAssistant) -> list[Station]:
-    """Station list, cached in memory for a day (it is ~1 MB and rarely changes)."""
-    cache = hass.data.setdefault(DOMAIN, {})
-    cached = cache.get("stations")
+async def async_get_stations(hass: HomeAssistant, provider: str) -> list[Station]:
+    """A provider's station list, cached in memory for a day (1-2 MB, rarely changes)."""
+    cache = hass.data.setdefault(DOMAIN, {}).setdefault("stations", {})
+    cached = cache.get(provider)
     if cached and time.monotonic() - cached[0] < STATIONS_CACHE_SECONDS:
         return cached[1]
-    stations = await DfoClient(async_get_clientsession(hass)).async_get_stations()
-    cache["stations"] = (time.monotonic(), stations)
+    stations = await PROVIDERS[provider].client(async_get_clientsession(hass)).async_get_stations()
+    cache[provider] = (time.monotonic(), stations)
     return stations
+
+
+def station_unique_id(station: Station) -> str:
+    """Station IDs are only unique within a provider."""
+    return f"{station.provider}_{station.id}"
 
 
 def station_data(station: Station) -> dict[str, Any]:
     return {
+        CONF_PROVIDER: station.provider,
         CONF_STATION_ID: station.id,
         CONF_STATION_CODE: station.code,
         CONF_STATION_NAME: station.name,
         CONF_LATITUDE: station.latitude,
         CONF_LONGITUDE: station.longitude,
+        CONF_SUBORDINATE: station.subordinate,
     }
 
 
@@ -81,23 +91,46 @@ def _station_selector(ranked: list[tuple[Station, float]]) -> SelectSelector:
 
 
 class StationPickerMixin:
-    """Shared location → nearest stations → search steps for both flows."""
+    """Shared source → location → nearest stations → search steps for both flows."""
 
     hass: HomeAssistant
+    _provider: str
     _stations: list[Station]
     _location: tuple[float, float]
 
     async def _async_station_chosen(self, station: Station) -> ConfigFlowResult:
         raise NotImplementedError
 
+    def _default_provider(self) -> str:
+        return "noaa" if self.hass.config.country == "US" else "dfo"
+
     async def _async_load_stations(self) -> str | None:
-        """Load the station list; returns an error key on failure."""
+        """Load the chosen provider's station list; returns an error key on failure."""
         try:
-            self._stations = await async_get_stations(self.hass)
-        except DfoApiError as err:
-            _LOGGER.warning("Could not load DFO stations: %s", err)
+            self._stations = await async_get_stations(self.hass, self._provider)
+        except TideApiError as err:
+            _LOGGER.warning("Could not load %s stations: %s", self._provider, err)
             return "cannot_connect"
         return None if self._stations else "no_stations"
+
+    async def async_step_source(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Choose where the predictions come from (one service per country)."""
+        if user_input is not None:
+            self._provider = user_input[CONF_PROVIDER]
+            return await self.async_step_location()
+
+        return self.async_show_form(  # type: ignore[attr-defined]
+            step_id="source",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_PROVIDER, default=self._default_provider()): SelectSelector(
+                        SelectSelectorConfig(
+                            options=list(PROVIDERS), mode=SelectSelectorMode.LIST, translation_key=CONF_PROVIDER
+                        )
+                    )
+                }
+            ),
+        )
 
     async def async_step_location(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Choose the reference point; defaults to the Home Assistant home location."""
@@ -161,26 +194,26 @@ class StationPickerMixin:
         return next(s for s in self._stations if s.id == station_id)
 
 
-class DfoTidesConfigFlow(StationPickerMixin, ConfigFlow, domain=DOMAIN):
+class MareTidesConfigFlow(StationPickerMixin, ConfigFlow, domain=DOMAIN):
     """Add a tide station."""
 
     VERSION = 1
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        return await self.async_step_location(user_input)
+        return await self.async_step_source(user_input)
 
     async def _async_station_chosen(self, station: Station) -> ConfigFlowResult:
-        await self.async_set_unique_id(station.id)
+        await self.async_set_unique_id(station_unique_id(station))
         self._abort_if_unique_id_configured()
         return self.async_create_entry(title=station.name, data=station_data(station))
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry) -> DfoTidesOptionsFlow:
-        return DfoTidesOptionsFlow()
+    def async_get_options_flow(config_entry) -> MareTidesOptionsFlow:
+        return MareTidesOptionsFlow()
 
 
-class DfoTidesOptionsFlow(StationPickerMixin, OptionsFlow):
+class MareTidesOptionsFlow(StationPickerMixin, OptionsFlow):
     """Change the station or the update interval."""
 
     def __init__(self) -> None:
@@ -191,7 +224,7 @@ class DfoTidesOptionsFlow(StationPickerMixin, OptionsFlow):
         if user_input is not None:
             self._new_options = {**entry.options, CONF_UPDATE_INTERVAL: int(user_input[CONF_UPDATE_INTERVAL])}
             if user_input.get(CONF_CHANGE_STATION):
-                return await self.async_step_location()
+                return await self.async_step_source()
             return self.async_create_entry(data=self._new_options)
 
         station = entry.data.get(CONF_STATION_NAME, entry.title)
@@ -217,18 +250,22 @@ class DfoTidesOptionsFlow(StationPickerMixin, OptionsFlow):
             description_placeholders={"station": f"{station} ({entry.data.get(CONF_STATION_CODE, '')})"},
         )
 
+    def _default_provider(self) -> str:
+        return self.config_entry.data[CONF_PROVIDER]
+
     async def _async_station_chosen(self, station: Station) -> ConfigFlowResult:
         entry = self.config_entry
-        if station.id != entry.unique_id:
+        unique_id = station_unique_id(station)
+        if unique_id != entry.unique_id:
             for other in self.hass.config_entries.async_entries(DOMAIN):
-                if other.entry_id != entry.entry_id and other.unique_id == station.id:
+                if other.entry_id != entry.entry_id and other.unique_id == unique_id:
                     return self.async_abort(reason="already_configured")
         # Keep a custom title across station changes.
         data = station_data(station)
         title = station.name if entry.title == entry.data.get(CONF_STATION_NAME) else entry.title
         # One update (and one reload); returning the same options below changes nothing more.
         self.hass.config_entries.async_update_entry(
-            entry, data=data, title=title, unique_id=station.id, options=self._new_options
+            entry, data=data, title=title, unique_id=unique_id, options=self._new_options
         )
         return self.async_create_entry(data=self._new_options)
 

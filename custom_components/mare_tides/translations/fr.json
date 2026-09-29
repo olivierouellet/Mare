@@ -1,9 +1,16 @@
 {
   "config": {
     "step": {
+      "source": {
+        "title": "Choisir une source de données",
+        "description": "Les prédictions de marée proviennent du service officiel de chaque pays.",
+        "data": {
+          "provider": "Source"
+        }
+      },
       "location": {
         "title": "Trouver une station de marée",
-        "description": "Les stations de marée de Pêches et Océans Canada (MPO) sont classées selon leur distance de ce point. Il est placé à l'emplacement de votre domicile dans Home Assistant; déplacez l'épingle pour chercher ailleurs.",
+        "description": "Les stations de marée sont classées selon leur distance de ce point. Il est placé à l'emplacement de votre domicile dans Home Assistant; déplacez l'épingle pour chercher ailleurs.",
         "data": {
           "location": "Emplacement"
         }
@@ -26,13 +33,13 @@
       }
     },
     "error": {
-      "cannot_connect": "Impossible de joindre l'API de MPO. Réessayez plus tard.",
-      "no_stations": "L'API de MPO n'a retourné aucune station.",
+      "cannot_connect": "Impossible de joindre le service de prédictions de marée. Réessayez plus tard.",
+      "no_stations": "Le service de prédictions de marée n'a retourné aucune station.",
       "no_match": "Aucune station ne correspond à cette recherche."
     },
     "abort": {
       "already_configured": "Cette station est déjà configurée.",
-      "cannot_connect": "Impossible de joindre l'API de MPO."
+      "cannot_connect": "Impossible de joindre le service de prédictions de marée."
     }
   },
   "options": {
@@ -46,6 +53,13 @@
         },
         "data_description": {
           "update_interval": "Les prédictions sont téléchargées une fois par heure; ce réglage contrôle seulement la fréquence de mise à jour du niveau actuel."
+        }
+      },
+      "source": {
+        "title": "Choisir une source de données",
+        "description": "Les prédictions de marée proviennent du service officiel de chaque pays.",
+        "data": {
+          "provider": "Source"
         }
       },
       "location": {
@@ -73,8 +87,8 @@
       }
     },
     "error": {
-      "cannot_connect": "Impossible de joindre l'API de MPO. Réessayez plus tard.",
-      "no_stations": "L'API de MPO n'a retourné aucune station.",
+      "cannot_connect": "Impossible de joindre le service de prédictions de marée. Réessayez plus tard.",
+      "no_stations": "Le service de prédictions de marée n'a retourné aucune station.",
       "no_match": "Aucune station ne correspond à cette recherche."
     },
     "abort": {
@@ -101,6 +115,14 @@
             "name": "Hauteur"
           }
         }
+      }
+    }
+  },
+  "selector": {
+    "provider": {
+      "options": {
+        "dfo": "Canada : Pêches et Océans Canada (MPO)",
+        "noaa": "États-Unis : NOAA Tides and Currents"
       }
     }
   }

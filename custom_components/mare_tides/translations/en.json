@@ -1,9 +1,16 @@
 {
   "config": {
     "step": {
+      "source": {
+        "title": "Choose a data source",
+        "description": "Tide predictions come from each country's official service.",
+        "data": {
+          "provider": "Source"
+        }
+      },
       "location": {
         "title": "Find a tide station",
-        "description": "Tide stations from Fisheries and Oceans Canada (DFO) are listed by distance from this point. It starts at your Home Assistant home location; move the pin to search somewhere else.",
+        "description": "Tide stations are listed by distance from this point. It starts at your Home Assistant home location; move the pin to search somewhere else.",
         "data": {
           "location": "Location"
         }
@@ -26,13 +33,13 @@
       }
     },
     "error": {
-      "cannot_connect": "Could not reach the DFO API. Try again later.",
-      "no_stations": "The DFO API returned no stations.",
+      "cannot_connect": "Could not reach the tide prediction service. Try again later.",
+      "no_stations": "The tide prediction service returned no stations.",
       "no_match": "No station matches this search."
     },
     "abort": {
       "already_configured": "This station is already set up.",
-      "cannot_connect": "Could not reach the DFO API."
+      "cannot_connect": "Could not reach the tide prediction service."
     }
   },
   "options": {
@@ -46,6 +53,13 @@
         },
         "data_description": {
           "update_interval": "Predictions are downloaded once an hour; this only controls how often the current level is refreshed."
+        }
+      },
+      "source": {
+        "title": "Choose a data source",
+        "description": "Tide predictions come from each country's official service.",
+        "data": {
+          "provider": "Source"
         }
       },
       "location": {
@@ -73,8 +87,8 @@
       }
     },
     "error": {
-      "cannot_connect": "Could not reach the DFO API. Try again later.",
-      "no_stations": "The DFO API returned no stations.",
+      "cannot_connect": "Could not reach the tide prediction service. Try again later.",
+      "no_stations": "The tide prediction service returned no stations.",
       "no_match": "No station matches this search."
     },
     "abort": {
@@ -101,6 +115,14 @@
             "name": "Height"
           }
         }
+      }
+    }
+  },
+  "selector": {
+    "provider": {
+      "options": {
+        "dfo": "Canada: Fisheries and Oceans Canada (DFO)",
+        "noaa": "United States: NOAA Tides and Currents"
       }
     }
   }

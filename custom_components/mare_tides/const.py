@@ -1,13 +1,15 @@
-"""Constants for the DFO Tides integration."""
+"""Constants for the Mare integration."""
 from datetime import timedelta
 
 DOMAIN = "mare_tides"
 
+CONF_PROVIDER = "provider"
 CONF_STATION_ID = "station_id"
 CONF_STATION_CODE = "station_code"
 CONF_STATION_NAME = "station_name"
 CONF_LATITUDE = "latitude"
 CONF_LONGITUDE = "longitude"
+CONF_SUBORDINATE = "subordinate"
 CONF_UPDATE_INTERVAL = "update_interval"
 
 DEFAULT_UPDATE_INTERVAL = 300  # seconds between state recalculations
@@ -24,5 +26,3 @@ WINDOW_DAYS_AFTER = 4
 
 NEAREST_COUNT = 5
 SEARCH_LIMIT = 25
-
-ATTRIBUTION = "Fisheries and Oceans Canada / Pêches et Océans Canada"

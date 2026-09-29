@@ -1,0 +1,156 @@
+{
+ "count": 15,
+ "units": null,
+ "stations": [
+  {
+   "id": "8443970",
+   "name": "BOSTON",
+   "state": "MA",
+   "lat": 42.35388888888889,
+   "lng": -71.05027777777778,
+   "type": "R",
+   "reference_id": "",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8443838",
+   "name": "Charlestown, Charles River entrance",
+   "state": "MA",
+   "lat": 42.3717,
+   "lng": -71.055,
+   "type": "S",
+   "reference_id": "8443970",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8443662",
+   "name": "Amelia Earhart Dam, Mystic River",
+   "state": "MA",
+   "lat": 42.395,
+   "lng": -71.0767,
+   "type": "R",
+   "reference_id": "",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8443725",
+   "name": "Chelsea St. Bridge, Chelsea River",
+   "state": "MA",
+   "lat": 42.3867,
+   "lng": -71.0233,
+   "type": "R",
+   "reference_id": "",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8444312",
+   "name": "Moon Head",
+   "state": "MA",
+   "lat": 42.3083,
+   "lng": -70.9917,
+   "type": "S",
+   "reference_id": "8443970",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8444012",
+   "name": "Deer Island (south end)",
+   "state": "MA",
+   "lat": 42.3483,
+   "lng": -70.96,
+   "type": "S",
+   "reference_id": "8443970",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8444488",
+   "name": "Neponset, Neponset River",
+   "state": "MA",
+   "lat": 42.285,
+   "lng": -71.04,
+   "type": "S",
+   "reference_id": "8443970",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8444525",
+   "name": "Nut Island, Quincy Bay",
+   "state": "MA",
+   "lat": 42.28,
+   "lng": -70.9533,
+   "type": "R",
+   "reference_id": "",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8444351",
+   "name": "Hull",
+   "state": "MA",
+   "lat": 42.3033,
+   "lng": -70.92,
+   "type": "S",
+   "reference_id": "8443970",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8444162",
+   "name": "Boston Light",
+   "state": "MA",
+   "lat": 42.3283,
+   "lng": -70.8917,
+   "type": "R",
+   "reference_id": "",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8443187",
+   "name": "Lynn, Lynn Harbor",
+   "state": "MA",
+   "lat": 42.4583,
+   "lng": -70.9433,
+   "type": "R",
+   "reference_id": "",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8444788",
+   "name": "Weymouth Fore River Bridge",
+   "state": "MA",
+   "lat": 42.2483,
+   "lng": -70.9667,
+   "type": "R",
+   "reference_id": "",
+   "timezonecorr": -5
+  },
+  {
+   "id": "8410140",
+   "name": "EASTPORT",
+   "state": "ME",
+   "lat": 44.90460968017578,
+   "lng": -66.9828872680664,
+   "type": "R",
+   "reference_id": "",
+   "timezonecorr": -5
+  },
+  {
+   "id": "9414290",
+   "name": "SAN FRANCISCO (Golden Gate)",
+   "state": "CA",
+   "lat": 37.80630555555555,
+   "lng": -122.4658888888889,
+   "type": "R",
+   "reference_id": "",
+   "timezonecorr": -8
+  },
+  {
+   "id": "1619000",
+   "name": "JOHNSTON ATOLL",
+   "state": "",
+   "lat": 16.7383,
+   "lng": -169.53,
+   "type": "R",
+   "reference_id": "",
+   "timezonecorr": -10
+  }
+ ]
+}

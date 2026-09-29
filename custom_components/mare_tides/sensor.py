@@ -1,4 +1,4 @@
-"""Sensors for DFO Tides: current tide level, next high tide and next low tide."""
+"""Sensors for Mare: current tide level, next high tide and next low tide."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -19,20 +19,22 @@ from homeassistant.util import dt as dt_util
 
 from .api import interpolate
 from .const import (
-    ATTRIBUTION,
     CONF_LATITUDE,
     CONF_LONGITUDE,
+    CONF_PROVIDER,
     CONF_STATION_CODE,
     CONF_STATION_ID,
     CONF_STATION_NAME,
+    CONF_SUBORDINATE,
     CONF_UPDATE_INTERVAL,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
 )
-from .coordinator import DfoTidesConfigEntry, DfoTidesCoordinator
+from .coordinator import MareTidesConfigEntry, MareTidesCoordinator
+
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: DfoTidesConfigEntry, async_add_entities: AddEntitiesCallback
+    hass: HomeAssistant, entry: MareTidesConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     """Set up the sensors for one station."""
     coordinator = entry.runtime_data
@@ -45,24 +47,25 @@ async def async_setup_entry(
     )
 
 
-class DfoTidesEntity(CoordinatorEntity[DfoTidesCoordinator]):
+class MareTidesEntity(CoordinatorEntity[MareTidesCoordinator]):
     """Common base: device, attribution and periodic recalculation between fetches."""
 
     _attr_has_entity_name = True
-    _attr_attribution = ATTRIBUTION
 
-    def __init__(self, coordinator: DfoTidesCoordinator, key: str) -> None:
+    def __init__(self, coordinator: MareTidesCoordinator, key: str) -> None:
         super().__init__(coordinator)
         entry = coordinator.config_entry
+        provider = coordinator.provider
+        self._attr_attribution = provider.attribution
         # Tied to the entry, not the station, so entity IDs survive a station change.
         self._attr_unique_id = f"{entry.entry_id}_{key}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
-            manufacturer=ATTRIBUTION,
+            manufacturer=provider.attribution,
             model=f"{entry.data.get(CONF_STATION_NAME)} ({entry.data.get(CONF_STATION_CODE)})",
             entry_type=DeviceEntryType.SERVICE,
-            configuration_url=f"https://www.tides.gc.ca/en/stations/{entry.data.get(CONF_STATION_CODE, '')}",
+            configuration_url=provider.station_url(entry.data[CONF_STATION_ID], entry.data.get(CONF_STATION_CODE, "")),
         )
 
     async def async_added_to_hass(self) -> None:
@@ -77,7 +80,7 @@ class DfoTidesEntity(CoordinatorEntity[DfoTidesCoordinator]):
         self.async_write_ha_state()
 
 
-class TideLevelSensor(DfoTidesEntity, SensorEntity):
+class TideLevelSensor(MareTidesEntity, SensorEntity):
     """Predicted water level right now, with the full curve and high/low points as attributes."""
 
     _attr_translation_key = "tide_level"
@@ -88,7 +91,7 @@ class TideLevelSensor(DfoTidesEntity, SensorEntity):
     # Large and fully predictable; keep them out of the recorder database.
     _unrecorded_attributes = frozenset({"tide_data", "tide_extremes"})
 
-    def __init__(self, coordinator: DfoTidesCoordinator) -> None:
+    def __init__(self, coordinator: MareTidesCoordinator) -> None:
         super().__init__(coordinator, "tide_level")
 
     @property
@@ -108,6 +111,9 @@ class TideLevelSensor(DfoTidesEntity, SensorEntity):
             "station_name": entry.data.get(CONF_STATION_NAME),
             "latitude": entry.data.get(CONF_LATITUDE),
             "longitude": entry.data.get(CONF_LONGITUDE),
+            "provider": entry.data.get(CONF_PROVIDER),
+            # True when the curve is drawn through the highs and lows (subordinate stations).
+            "interpolated": entry.data.get(CONF_SUBORDINATE, False),
         }
         if data is None:
             return attrs
@@ -121,12 +127,12 @@ class TideLevelSensor(DfoTidesEntity, SensorEntity):
         return attrs
 
 
-class NextExtremeSensor(DfoTidesEntity, SensorEntity):
+class NextExtremeSensor(MareTidesEntity, SensorEntity):
     """Time of the next high or low tide; its height is an attribute."""
 
     _attr_device_class = SensorDeviceClass.TIMESTAMP
 
-    def __init__(self, coordinator: DfoTidesCoordinator, kind: str) -> None:
+    def __init__(self, coordinator: MareTidesCoordinator, kind: str) -> None:
         super().__init__(coordinator, f"next_{kind}")
         self._kind = kind
         self._attr_translation_key = f"next_{kind}"

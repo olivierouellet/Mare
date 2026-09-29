@@ -1,4 +1,4 @@
-"""Fixtures for the DFO Tides tests."""
+"""Fixtures for the Mare tests."""
 from __future__ import annotations
 
 import json
@@ -14,7 +14,9 @@ FIXTURES = Path(__file__).parent / "fixtures"
 HALIFAX_ID = "5cebf1df3d0f4a073c4bbcbb"
 BEDFORD_ID = "5cebf1e23d0f4a073c4bbfac"
 SANDY_BEACH_ID = "5cebf1e33d0f4a073c4bc2d8"
-NOW = "2026-09-27T15:00:00+00:00"  # 12:00 in Halifax
+BOSTON_ID = "8443970"  # NOAA reference station
+HULL_ID = "8444351"  # NOAA subordinate station (highs and lows only)
+NOW = "2026-09-27T15:00:00+00:00"  # 12:00 in Halifax, 11:00 in Boston
 
 
 def load(name: str):
@@ -42,4 +44,24 @@ def dfo_api(aioclient_mock: AiohttpClientMocker) -> AiohttpClientMocker:
     aioclient_mock.get(re.compile(r"/api/v1/stations$"), json=load("stations.json"))
     aioclient_mock.get(re.compile(r"time-series-code=wlp-hilo"), json=load("halifax_hilo.json"))
     aioclient_mock.get(re.compile(r"time-series-code=wlp(&|$)"), json=load("halifax_wlp.json"))
+    return aioclient_mock
+
+
+@pytest.fixture
+async def boston_home(hass):
+    """Home Assistant located in Boston, frozen at a known time."""
+    await hass.config.async_set_time_zone("America/New_York")
+    hass.config.latitude = 42.3601
+    hass.config.longitude = -71.0589
+    hass.config.country = "US"
+    return hass
+
+
+@pytest.fixture
+def noaa_api(aioclient_mock: AiohttpClientMocker) -> AiohttpClientMocker:
+    """Serve recorded NOAA API responses (Boston, and Hull for a subordinate station)."""
+    aioclient_mock.get(re.compile(r"/webapi/stations\.json"), json=load("noaa_stations.json"))
+    aioclient_mock.get(re.compile(rf"station={BOSTON_ID}.*interval=15(&|$)"), json=load("boston_15.json"))
+    aioclient_mock.get(re.compile(rf"station={BOSTON_ID}.*interval=hilo"), json=load("boston_hilo.json"))
+    aioclient_mock.get(re.compile(rf"station={HULL_ID}.*interval=hilo"), json=load("hull_hilo.json"))
     return aioclient_mock
