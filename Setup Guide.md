@@ -19,6 +19,7 @@ config/
 └── custom_components/
     └── mare_tides/
         ├── __init__.py
+        ├── admiralty.py
         ├── api.py
         ├── config_flow.py
         ├── const.py
@@ -40,7 +41,8 @@ config/
 ### 2. Add a tide station
 
 1. *Settings → Devices & services → Add integration* → search for **Mare**.
-2. Pick the source: **Canada** (Fisheries and Oceans Canada, DFO), **United States** (NOAA), **Norway** (Kartverket), **Netherlands** (Rijkswaterstaat) or **Ireland** (Marine Institute). It defaults to your Home Assistant country.
+2. Pick the source: **Canada** (Fisheries and Oceans Canada, DFO), **United States** (NOAA), **United Kingdom** (ADMIRALTY, needs a free API key), **Norway** (Kartverket), **Netherlands** (Rijkswaterstaat) or **Ireland** (Marine Institute). It defaults to your Home Assistant country.
+   - **United Kingdom only:** paste your ADMIRALTY API key. Get it at the [ADMIRALTY developer portal](https://admiraltyapi.portal.azure-api.net/) by subscribing to *UK Tidal API - Discovery* (free). When the key expires, Home Assistant shows a *Reconfigure* notice under *Settings → Devices & services* asking for a new one.
 3. The map starts at your home location. Keep it, or move the pin to look for stations somewhere else, then submit.
 4. Pick one of the **5 nearest stations** (each shows its code and distance), or tick *Search all stations instead* and type part of a name or code.
 
@@ -82,7 +84,7 @@ hours: 48
 ### Troubleshooting
 
 - **Logs:** *Settings → System → Logs*, search for `mare_tides`.
-- **“Could not reach the tide prediction service”:** check that Home Assistant can reach the service for your country: `api-iwls.dfo-mpo.gc.ca` (Canada), `api.tidesandcurrents.noaa.gov` (United States), `vannstand.kartverket.no` (Norway), `ddapi20-waterwebservices.rijkswaterstaat.nl` (Netherlands) or `erddap.marine.ie` (Ireland).
+- **“Could not reach the tide prediction service”:** check that Home Assistant can reach the service for your country: `api-iwls.dfo-mpo.gc.ca` (Canada), `api.tidesandcurrents.noaa.gov` (United States), `admiraltyapi.azure-api.net` (United Kingdom), `vannstand.kartverket.no` (Norway), `ddapi20-waterwebservices.rijkswaterstaat.nl` (Netherlands) or `erddap.marine.ie` (Ireland).
 - **The card says the sensor has no tide data:** pick the *tide level* sensor, not *next high/low tide*.
 - **Direct mode shows “Could not load tides from DFO”:** the browser must be able to reach `api-iwls.dfo-mpo.gc.ca` (some ad blockers or firewalls block it).
 - **“Use my current position” isn’t available:** browsers only allow it over HTTPS or in the Home Assistant app.
@@ -103,7 +105,8 @@ hours: 48
 ### 2. Ajouter une station de marée
 
 1. *Paramètres → Appareils et services → Ajouter une intégration* → cherchez **Mare**.
-2. Choisissez la source : **Canada** (Pêches et Océans Canada, MPO), **États-Unis** (NOAA), **Norvège** (Kartverket), **Pays-Bas** (Rijkswaterstaat) ou **Irlande** (Marine Institute). Par défaut, c’est le pays configuré dans Home Assistant.
+2. Choisissez la source : **Canada** (Pêches et Océans Canada, MPO), **États-Unis** (NOAA), **Royaume-Uni** (ADMIRALTY, clé d’API gratuite requise), **Norvège** (Kartverket), **Pays-Bas** (Rijkswaterstaat) ou **Irlande** (Marine Institute). Par défaut, c’est le pays configuré dans Home Assistant.
+   - **Royaume-Uni seulement :** collez votre clé d’API ADMIRALTY. Obtenez-la sur le [portail des développeurs ADMIRALTY](https://admiraltyapi.portal.azure-api.net/) en vous abonnant à *UK Tidal API - Discovery* (gratuit). Quand la clé expire, Home Assistant affiche un avis *Reconfigurer* dans *Paramètres → Appareils et services* pour en demander une nouvelle.
 3. La carte s’ouvre sur l’emplacement de votre domicile. Gardez-le, ou déplacez l’épingle pour chercher des stations ailleurs, puis soumettez.
 4. Choisissez l’une des **5 stations les plus proches** (chacune affiche son code et sa distance), ou cochez *Rechercher parmi toutes les stations* et tapez une partie d’un nom ou d’un code.
 
@@ -146,7 +149,7 @@ language: fr
 ### Dépannage
 
 - **Journaux :** *Paramètres → Système → Journaux*, cherchez `mare_tides`.
-- **« Impossible de joindre le service de prédictions de marée » :** vérifiez que Home Assistant peut joindre le service de votre pays : `api-iwls.dfo-mpo.gc.ca` (Canada), `api.tidesandcurrents.noaa.gov` (États-Unis), `vannstand.kartverket.no` (Norvège), `ddapi20-waterwebservices.rijkswaterstaat.nl` (Pays-Bas) ou `erddap.marine.ie` (Irlande).
+- **« Impossible de joindre le service de prédictions de marée » :** vérifiez que Home Assistant peut joindre le service de votre pays : `api-iwls.dfo-mpo.gc.ca` (Canada), `api.tidesandcurrents.noaa.gov` (États-Unis), `admiraltyapi.azure-api.net` (Royaume-Uni), `vannstand.kartverket.no` (Norvège), `ddapi20-waterwebservices.rijkswaterstaat.nl` (Pays-Bas) ou `erddap.marine.ie` (Irlande).
 - **La carte indique que le capteur n’a pas de données de marée :** choisissez le capteur de *niveau de marée*, pas celui de la prochaine marée haute ou basse.
 - **Le mode direct affiche « Impossible de charger les marées de MPO » :** le navigateur doit pouvoir joindre `api-iwls.dfo-mpo.gc.ca` (certains bloqueurs de publicité ou pare-feu le bloquent).
 - **« Utiliser ma position actuelle » n’est pas disponible :** les navigateurs ne le permettent qu’en HTTPS ou dans l’application Home Assistant.

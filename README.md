@@ -18,7 +18,7 @@
 
 ## English
 
-Mare brings official tide predictions into Home Assistant for **Canada, the United States, Norway, the Netherlands and Ireland**, and shows them on a dashboard card that labels **every high and low tide**.
+Mare brings official tide predictions into Home Assistant for **Canada, the United States, the United Kingdom, Norway, the Netherlands and Ireland**, and shows them on a dashboard card that labels **every high and low tide**.
 
 It has two parts:
 
@@ -35,9 +35,12 @@ The card works **with** the integration (it reads the tide level sensor) or **wi
 |---|---|---|
 | Canada | Fisheries and Oceans Canada (DFO), [IWLS API](https://api-iwls.dfo-mpo.gc.ca/) | Chart datum |
 | United States | NOAA Tides and Currents, [CO-OPS API](https://api.tidesandcurrents.noaa.gov/api/prod/) | MLLW (mean lower low water) |
+| United Kingdom | ADMIRALTY (UK Hydrographic Office), [UK Tidal API](https://admiraltyapi.portal.azure-api.net/) (free API key) | Chart datum |
 | Norway | Kartverket (Norwegian Mapping Authority), [tide API](https://vannstand.kartverket.no/tideapi_en.html) | Chart datum |
 | Netherlands | Rijkswaterstaat, [Waterwebservices](https://rijkswaterstaatdata.nl/waterdata/) | NAP (Normaal Amsterdams Peil) |
 | Ireland | Marine Institute, [ERDDAP tide predictions](https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html) | OD Malin (Ordnance Datum Malin Head) |
+
+**United Kingdom:** the service needs an API key. Sign up at the [ADMIRALTY developer portal](https://admiraltyapi.portal.azure-api.net/) and subscribe to *UK Tidal API - Discovery* (free for a year, renewable); Mare asks for the key when you pick the United Kingdom, and asks again if it expires. Discovery only publishes high and low waters for today and the next 6 days, so Mare draws the curve through them (`interpolated: true`) and has nothing before today's first tide until it has been running for a day.
 
 Heights are measured from different references: chart datum and MLLW are near the lowest tides, while NAP and OD Malin are land survey levels, so lows are often negative. The tide level sensor has a `datum` attribute with the reference.
 
@@ -88,16 +91,16 @@ The YAML `platform: dfo_tides` sensor is no longer imported; add the station fro
 
 - Integration tests: `pytest` (needs `pytest-homeassistant-custom-component`, Python 3.13). They use recorded responses from every provider in `tests/fixtures`.
 - The card lives in its own repository: [olivierouellet/Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card).
-- **Adding a country:** write a client that subclasses `TideClient` in `api.py` (implement `async_get_stations` and `_async_get_predictions`, plus `_async_get_extremes` if some stations only publish highs and lows), register it in `PROVIDERS` in `providers.py` with its countries, and add its label under `selector.provider` in `strings.json` and each translation. A test checks that every provider has a label in every language.
+- **Adding a country:** write a client that subclasses `TideClient` in `api.py` (implement `async_get_stations` and `_async_get_predictions`, plus `_async_get_extremes` if some stations only publish highs and lows; a key the user entered is in `self._api_key`), register it in `PROVIDERS` in `providers.py` with its countries (and `api_key_url` if it needs a key, which adds the key step to the setup), and add its label under `selector.provider` in `strings.json` and each translation. A test checks that every provider has a label in every language.
 - The integration icon lives in `custom_components/mare_tides/brand/` (Home Assistant 2026.3 or later shows it automatically). Its source is `assets/icon.svg`; after editing it, export `icon@2x.png` at 512×512 and `icon.png` at 256×256.
 
-Data: Fisheries and Oceans Canada, [Integrated Water Level System API](https://api-iwls.dfo-mpo.gc.ca/); NOAA Center for Operational Oceanographic Products and Services, [Tides and Currents](https://tidesandcurrents.noaa.gov/); Kartverket, [Se havnivå](https://www.kartverket.no/en/at-sea/se-havniva) (CC BY 4.0); Rijkswaterstaat, [Waterinfo](https://waterinfo.rws.nl/); Marine Institute, [Irish National Tide Gauge Network](https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html). Predictions are not for navigation.
+Data: Fisheries and Oceans Canada, [Integrated Water Level System API](https://api-iwls.dfo-mpo.gc.ca/); NOAA Center for Operational Oceanographic Products and Services, [Tides and Currents](https://tidesandcurrents.noaa.gov/); UK Hydrographic Office, [ADMIRALTY UK Tidal API](https://admiraltyapi.portal.azure-api.net/); Kartverket, [Se havnivå](https://www.kartverket.no/en/at-sea/se-havniva) (CC BY 4.0); Rijkswaterstaat, [Waterinfo](https://waterinfo.rws.nl/); Marine Institute, [Irish National Tide Gauge Network](https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html). Predictions are not for navigation.
 
 ---
 
 ## Français
 
-Mare intègre à Home Assistant les prédictions de marée officielles pour **le Canada, les États-Unis, la Norvège, les Pays-Bas et l’Irlande**, et les affiche dans une carte de tableau de bord qui indique **chaque marée haute et basse**.
+Mare intègre à Home Assistant les prédictions de marée officielles pour **le Canada, les États-Unis, le Royaume-Uni, la Norvège, les Pays-Bas et l’Irlande**, et les affiche dans une carte de tableau de bord qui indique **chaque marée haute et basse**.
 
 Le projet comporte deux parties :
 
@@ -114,9 +117,12 @@ La carte fonctionne **avec** l’intégration (elle lit le capteur de niveau de 
 |---|---|---|
 | Canada | Pêches et Océans Canada (MPO), [API SINE](https://api-iwls.dfo-mpo.gc.ca/) | Zéro des cartes |
 | États-Unis | NOAA Tides and Currents, [API CO-OPS](https://api.tidesandcurrents.noaa.gov/api/prod/) | MLLW (moyenne des basses mers inférieures) |
+| Royaume-Uni | ADMIRALTY (Service hydrographique du Royaume-Uni), [UK Tidal API](https://admiraltyapi.portal.azure-api.net/) (clé d’API gratuite) | Zéro des cartes |
 | Norvège | Kartverket (Autorité cartographique norvégienne), [API des marées](https://vannstand.kartverket.no/tideapi_en.html) | Zéro des cartes |
 | Pays-Bas | Rijkswaterstaat, [Waterwebservices](https://rijkswaterstaatdata.nl/waterdata/) | NAP (Normaal Amsterdams Peil) |
 | Irlande | Marine Institute, [prédictions de marée ERDDAP](https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html) | OD Malin (niveau de référence de Malin Head) |
+
+**Royaume-Uni :** le service demande une clé d’API. Inscrivez-vous sur le [portail des développeurs ADMIRALTY](https://admiraltyapi.portal.azure-api.net/) et abonnez-vous à *UK Tidal API - Discovery* (gratuit pendant un an, renouvelable); Mare demande la clé quand vous choisissez le Royaume-Uni, puis de nouveau si elle expire. Discovery ne publie que les pleines et basses mers d’aujourd’hui et des 6 prochains jours : Mare trace la courbe entre elles (`interpolated: true`) et n’a rien avant la première marée du jour tant qu’il n’a pas fonctionné une journée.
 
 Les hauteurs n’ont pas toutes la même référence : le zéro des cartes et le MLLW sont près des plus basses marées, alors que le NAP et l’OD Malin sont des niveaux d’arpentage terrestres, où les basses mers sont souvent négatives. Le capteur de niveau de marée indique la référence dans l’attribut `datum`.
 
@@ -167,7 +173,7 @@ Le capteur YAML `platform: dfo_tides` n’est plus importé; ajoutez plutôt la 
 
 - Tests de l’intégration : `pytest` (requiert `pytest-homeassistant-custom-component`, Python 3.13). Ils utilisent des réponses de chaque source enregistrées dans `tests/fixtures`.
 - La carte a son propre dépôt : [olivierouellet/Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card#français).
-- **Ajouter un pays :** écrivez un client qui hérite de `TideClient` dans `api.py` (implémentez `async_get_stations` et `_async_get_predictions`, ainsi que `_async_get_extremes` si certaines stations ne publient que les marées hautes et basses), inscrivez-le dans `PROVIDERS` de `providers.py` avec ses pays, et ajoutez son libellé sous `selector.provider` dans `strings.json` et chaque traduction. Un test vérifie que chaque source a un libellé dans chaque langue.
+- **Ajouter un pays :** écrivez un client qui hérite de `TideClient` dans `api.py` (implémentez `async_get_stations` et `_async_get_predictions`, ainsi que `_async_get_extremes` si certaines stations ne publient que les marées hautes et basses; la clé saisie par l’utilisateur est dans `self._api_key`), inscrivez-le dans `PROVIDERS` de `providers.py` avec ses pays (et `api_key_url` s’il demande une clé, ce qui ajoute l’étape de la clé à la configuration), et ajoutez son libellé sous `selector.provider` dans `strings.json` et chaque traduction. Un test vérifie que chaque source a un libellé dans chaque langue.
 - L’icône de l’intégration se trouve dans `custom_components/mare_tides/brand/` (Home Assistant 2026.3 ou plus récent l’affiche automatiquement). Sa source est `assets/icon.svg`; après une modification, exportez `icon@2x.png` en 512×512 et `icon.png` en 256×256.
 
-Données : Pêches et Océans Canada, [API du Système intégré des niveaux d’eau](https://api-iwls.dfo-mpo.gc.ca/); NOAA Center for Operational Oceanographic Products and Services, [Tides and Currents](https://tidesandcurrents.noaa.gov/); Kartverket, [Se havnivå](https://www.kartverket.no/en/at-sea/se-havniva) (CC BY 4.0); Rijkswaterstaat, [Waterinfo](https://waterinfo.rws.nl/); Marine Institute, [réseau national irlandais de marégraphes](https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html). Les prédictions ne doivent pas servir à la navigation.
+Données : Pêches et Océans Canada, [API du Système intégré des niveaux d’eau](https://api-iwls.dfo-mpo.gc.ca/); NOAA Center for Operational Oceanographic Products and Services, [Tides and Currents](https://tidesandcurrents.noaa.gov/); UK Hydrographic Office, [ADMIRALTY UK Tidal API](https://admiraltyapi.portal.azure-api.net/); Kartverket, [Se havnivå](https://www.kartverket.no/en/at-sea/se-havniva) (CC BY 4.0); Rijkswaterstaat, [Waterinfo](https://waterinfo.rws.nl/); Marine Institute, [réseau national irlandais de marégraphes](https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html). Les prédictions ne doivent pas servir à la navigation.
