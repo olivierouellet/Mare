@@ -24,9 +24,12 @@ config/
         ├── const.py
         ├── coordinator.py
         ├── dfo.py
+        ├── kartverket.py
         ├── manifest.json
+        ├── marine_institute.py
         ├── noaa.py
         ├── providers.py
+        ├── rijkswaterstaat.py
         ├── sensor.py
         ├── strings.json
         └── translations/
@@ -37,7 +40,7 @@ config/
 ### 2. Add a tide station
 
 1. *Settings → Devices & services → Add integration* → search for **Mare**.
-2. Pick the source: **Canada** (Fisheries and Oceans Canada, DFO) or **United States** (NOAA). It defaults to your Home Assistant country.
+2. Pick the source: **Canada** (Fisheries and Oceans Canada, DFO), **United States** (NOAA), **Norway** (Kartverket), **Netherlands** (Rijkswaterstaat) or **Ireland** (Marine Institute). It defaults to your Home Assistant country.
 3. The map starts at your home location. Keep it, or move the pin to look for stations somewhere else, then submit.
 4. Pick one of the **5 nearest stations** (each shows its code and distance), or tick *Search all stations instead* and type part of a name or code.
 
@@ -49,7 +52,7 @@ For NOAA *subordinate* stations, NOAA only publishes high and low tides; Mare dr
 
 | Sensor | State | Useful attributes |
 |---|---|---|
-| Tide level | Predicted level now, in metres | `trend`, `tide_data`, `tide_extremes`, `station_name`, `provider`, `interpolated` |
+| Tide level | Predicted level now, in metres | `trend`, `tide_data`, `tide_extremes`, `station_name`, `provider`, `datum`, `interpolated` |
 | Next high tide | Time of the next high tide | `height` |
 | Next low tide | Time of the next low tide | `height` |
 
@@ -79,7 +82,7 @@ hours: 48
 ### Troubleshooting
 
 - **Logs:** *Settings → System → Logs*, search for `mare_tides`.
-- **“Could not reach the tide prediction service”:** check that Home Assistant can reach `https://api-iwls.dfo-mpo.gc.ca` (Canada) or `https://api.tidesandcurrents.noaa.gov` (United States).
+- **“Could not reach the tide prediction service”:** check that Home Assistant can reach the service for your country: `api-iwls.dfo-mpo.gc.ca` (Canada), `api.tidesandcurrents.noaa.gov` (United States), `vannstand.kartverket.no` (Norway), `ddapi20-waterwebservices.rijkswaterstaat.nl` (Netherlands) or `erddap.marine.ie` (Ireland).
 - **The card says the sensor has no tide data:** pick the *tide level* sensor, not *next high/low tide*.
 - **Direct mode shows “Could not load tides from DFO”:** the browser must be able to reach `api-iwls.dfo-mpo.gc.ca` (some ad blockers or firewalls block it).
 - **“Use my current position” isn’t available:** browsers only allow it over HTTPS or in the Home Assistant app.
@@ -100,7 +103,7 @@ hours: 48
 ### 2. Ajouter une station de marée
 
 1. *Paramètres → Appareils et services → Ajouter une intégration* → cherchez **Mare**.
-2. Choisissez la source : **Canada** (Pêches et Océans Canada, MPO) ou **États-Unis** (NOAA). Par défaut, c’est le pays configuré dans Home Assistant.
+2. Choisissez la source : **Canada** (Pêches et Océans Canada, MPO), **États-Unis** (NOAA), **Norvège** (Kartverket), **Pays-Bas** (Rijkswaterstaat) ou **Irlande** (Marine Institute). Par défaut, c’est le pays configuré dans Home Assistant.
 3. La carte s’ouvre sur l’emplacement de votre domicile. Gardez-le, ou déplacez l’épingle pour chercher des stations ailleurs, puis soumettez.
 4. Choisissez l’une des **5 stations les plus proches** (chacune affiche son code et sa distance), ou cochez *Rechercher parmi toutes les stations* et tapez une partie d’un nom ou d’un code.
 
@@ -112,7 +115,7 @@ Pour les stations *secondaires* de la NOAA, seules les marées hautes et basses 
 
 | Capteur | État | Attributs utiles |
 |---|---|---|
-| Niveau de marée | Niveau prédit en ce moment, en mètres | `trend`, `tide_data`, `tide_extremes`, `station_name`, `provider`, `interpolated` |
+| Niveau de marée | Niveau prédit en ce moment, en mètres | `trend`, `tide_data`, `tide_extremes`, `station_name`, `provider`, `datum`, `interpolated` |
 | Prochaine marée haute | Heure de la prochaine marée haute | `height` (hauteur) |
 | Prochaine marée basse | Heure de la prochaine marée basse | `height` (hauteur) |
 
@@ -143,7 +146,7 @@ language: fr
 ### Dépannage
 
 - **Journaux :** *Paramètres → Système → Journaux*, cherchez `mare_tides`.
-- **« Impossible de joindre le service de prédictions de marée » :** vérifiez que Home Assistant peut joindre `https://api-iwls.dfo-mpo.gc.ca` (Canada) ou `https://api.tidesandcurrents.noaa.gov` (États-Unis).
+- **« Impossible de joindre le service de prédictions de marée » :** vérifiez que Home Assistant peut joindre le service de votre pays : `api-iwls.dfo-mpo.gc.ca` (Canada), `api.tidesandcurrents.noaa.gov` (États-Unis), `vannstand.kartverket.no` (Norvège), `ddapi20-waterwebservices.rijkswaterstaat.nl` (Pays-Bas) ou `erddap.marine.ie` (Irlande).
 - **La carte indique que le capteur n’a pas de données de marée :** choisissez le capteur de *niveau de marée*, pas celui de la prochaine marée haute ou basse.
 - **Le mode direct affiche « Impossible de charger les marées de MPO » :** le navigateur doit pouvoir joindre `api-iwls.dfo-mpo.gc.ca` (certains bloqueurs de publicité ou pare-feu le bloquent).
 - **« Utiliser ma position actuelle » n’est pas disponible :** les navigateurs ne le permettent qu’en HTTPS ou dans l’application Home Assistant.

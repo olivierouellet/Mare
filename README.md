@@ -18,7 +18,7 @@
 
 ## English
 
-Mare brings official tide predictions into Home Assistant, from **Fisheries and Oceans Canada (DFO)** for Canada and **NOAA** for the United States, and shows them on a dashboard card that labels **every high and low tide**.
+Mare brings official tide predictions into Home Assistant for **Canada, the United States, Norway, the Netherlands and Ireland**, and shows them on a dashboard card that labels **every high and low tide**.
 
 It has two parts:
 
@@ -35,15 +35,20 @@ The card works **with** the integration (it reads the tide level sensor) or **wi
 |---|---|---|
 | Canada | Fisheries and Oceans Canada (DFO), [IWLS API](https://api-iwls.dfo-mpo.gc.ca/) | Chart datum |
 | United States | NOAA Tides and Currents, [CO-OPS API](https://api.tidesandcurrents.noaa.gov/api/prod/) | MLLW (mean lower low water) |
+| Norway | Kartverket (Norwegian Mapping Authority), [tide API](https://vannstand.kartverket.no/tideapi_en.html) | Chart datum |
+| Netherlands | Rijkswaterstaat, [Waterwebservices](https://rijkswaterstaatdata.nl/waterdata/) | NAP (Normaal Amsterdams Peil) |
+| Ireland | Marine Institute, [ERDDAP tide predictions](https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html) | OD Malin (Ordnance Datum Malin Head) |
+
+Heights are measured from different references: chart datum and MLLW are near the lowest tides, while NAP and OD Malin are land survey levels, so lows are often negative. The tide level sensor has a `datum` attribute with the reference.
 
 About 2,200 NOAA stations are *subordinate* stations: NOAA only publishes their high and low tides. Mare draws their curve through those highs and lows with a cosine, and sets the `interpolated` attribute to `true`. The high and low tides are official; the level between them is a close estimate.
 
 ### Integration features
 
-- **Set up from the UI**: *Settings → Devices & services → Add integration → Mare*. Pick the source (Canada or United States), then the 5 stations nearest your home are listed with their distance; you can move the map pin or search every station by name or code.
+- **Set up from the UI**: *Settings → Devices & services → Add integration → Mare*. Pick the country, then the 5 stations nearest your home are listed with their distance; you can move the map pin or search every station by name or code.
 - **Change the station later** under *Configure*. Entity IDs don’t change, so your cards and automations keep working.
 - **Sensors**
-  - `sensor.<station>_tide_level`: predicted level right now (m), with `trend` (`rising`/`falling`), `provider` (`dfo`/`noaa`), `interpolated`, the whole 15-minute curve (`tide_data`) and the official high/low points (`tide_extremes`) for yesterday through the next 3 days. The two large attributes are not written to the recorder database.
+  - `sensor.<station>_tide_level`: predicted level right now (m), with `trend` (`rising`/`falling`), `provider`, `datum`, `interpolated`, the whole curve (`tide_data`) and the official high/low points (`tide_extremes`) for yesterday through the next 3 days. The two large attributes are not written to the recorder database.
   - `sensor.<station>_next_high_tide` and `sensor.<station>_next_low_tide`: timestamps, with the `height` as an attribute. Handy for automations.
 - Predictions are downloaded once an hour; the current level is recalculated every 5 minutes (configurable).
 - English and French interface.
@@ -81,18 +86,18 @@ The YAML `platform: dfo_tides` sensor is no longer imported; add the station fro
 
 ### Development
 
-- Integration tests: `pytest` (needs `pytest-homeassistant-custom-component`, Python 3.13). They use recorded DFO and NOAA responses in `tests/fixtures`.
+- Integration tests: `pytest` (needs `pytest-homeassistant-custom-component`, Python 3.13). They use recorded responses from every provider in `tests/fixtures`.
 - The card lives in its own repository: [olivierouellet/Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card).
 - **Adding a country:** write a client that subclasses `TideClient` in `api.py` (implement `async_get_stations` and `_async_get_predictions`, plus `_async_get_extremes` if some stations only publish highs and lows), register it in `PROVIDERS` in `providers.py` with its countries, and add its label under `selector.provider` in `strings.json` and each translation. A test checks that every provider has a label in every language.
 - The integration icon lives in `custom_components/mare_tides/brand/` (Home Assistant 2026.3 or later shows it automatically). Its source is `assets/icon.svg`; after editing it, export `icon@2x.png` at 512×512 and `icon.png` at 256×256.
 
-Data: Fisheries and Oceans Canada, [Integrated Water Level System API](https://api-iwls.dfo-mpo.gc.ca/); NOAA Center for Operational Oceanographic Products and Services, [Tides and Currents](https://tidesandcurrents.noaa.gov/). Predictions are not for navigation.
+Data: Fisheries and Oceans Canada, [Integrated Water Level System API](https://api-iwls.dfo-mpo.gc.ca/); NOAA Center for Operational Oceanographic Products and Services, [Tides and Currents](https://tidesandcurrents.noaa.gov/); Kartverket, [Se havnivå](https://www.kartverket.no/en/at-sea/se-havniva) (CC BY 4.0); Rijkswaterstaat, [Waterinfo](https://waterinfo.rws.nl/); Marine Institute, [Irish National Tide Gauge Network](https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html). Predictions are not for navigation.
 
 ---
 
 ## Français
 
-Mare intègre à Home Assistant les prédictions de marée officielles de **Pêches et Océans Canada (MPO)** pour le Canada et de la **NOAA** pour les États-Unis, et les affiche dans une carte de tableau de bord qui indique **chaque marée haute et basse**.
+Mare intègre à Home Assistant les prédictions de marée officielles pour **le Canada, les États-Unis, la Norvège, les Pays-Bas et l’Irlande**, et les affiche dans une carte de tableau de bord qui indique **chaque marée haute et basse**.
 
 Le projet comporte deux parties :
 
@@ -109,15 +114,20 @@ La carte fonctionne **avec** l’intégration (elle lit le capteur de niveau de 
 |---|---|---|
 | Canada | Pêches et Océans Canada (MPO), [API SINE](https://api-iwls.dfo-mpo.gc.ca/) | Zéro des cartes |
 | États-Unis | NOAA Tides and Currents, [API CO-OPS](https://api.tidesandcurrents.noaa.gov/api/prod/) | MLLW (moyenne des basses mers inférieures) |
+| Norvège | Kartverket (Autorité cartographique norvégienne), [API des marées](https://vannstand.kartverket.no/tideapi_en.html) | Zéro des cartes |
+| Pays-Bas | Rijkswaterstaat, [Waterwebservices](https://rijkswaterstaatdata.nl/waterdata/) | NAP (Normaal Amsterdams Peil) |
+| Irlande | Marine Institute, [prédictions de marée ERDDAP](https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html) | OD Malin (niveau de référence de Malin Head) |
+
+Les hauteurs n’ont pas toutes la même référence : le zéro des cartes et le MLLW sont près des plus basses marées, alors que le NAP et l’OD Malin sont des niveaux d’arpentage terrestres, où les basses mers sont souvent négatives. Le capteur de niveau de marée indique la référence dans l’attribut `datum`.
 
 Environ 2 200 stations de la NOAA sont des stations *secondaires* : la NOAA ne publie que leurs marées hautes et basses. Mare trace leur courbe entre ces marées hautes et basses avec un cosinus et met l’attribut `interpolated` à `true`. Les marées hautes et basses sont officielles; le niveau entre les deux est une bonne estimation.
 
 ### Fonctionnalités de l’intégration
 
-- **Configuration dans l’interface** : *Paramètres → Appareils et services → Ajouter une intégration → Mare*. Choisissez la source (Canada ou États-Unis); les 5 stations les plus proches de votre domicile sont proposées avec leur distance; vous pouvez déplacer l’épingle sur la carte ou chercher parmi toutes les stations par nom ou par code.
+- **Configuration dans l’interface** : *Paramètres → Appareils et services → Ajouter une intégration → Mare*. Choisissez le pays; les 5 stations les plus proches de votre domicile sont proposées avec leur distance; vous pouvez déplacer l’épingle sur la carte ou chercher parmi toutes les stations par nom ou par code.
 - **Changer de station plus tard** avec *Configurer*. Les identifiants d’entité ne changent pas : vos cartes et automatisations continuent de fonctionner.
 - **Capteurs**
-  - `sensor.<station>_niveau_de_maree` (ou `_tide_level` en anglais) : niveau prédit en ce moment (m), avec `trend` (`rising`/`falling`, montante/descendante), `provider` (`dfo`/`noaa`), `interpolated`, la courbe complète aux 15 minutes (`tide_data`) et les marées hautes et basses officielles (`tide_extremes`) d’hier jusqu’aux 3 prochains jours. Ces deux gros attributs ne sont pas enregistrés dans la base de données de l’historique.
+  - `sensor.<station>_niveau_de_maree` (ou `_tide_level` en anglais) : niveau prédit en ce moment (m), avec `trend` (`rising`/`falling`, montante/descendante), `provider`, `datum`, `interpolated`, la courbe complète (`tide_data`) et les marées hautes et basses officielles (`tide_extremes`) d’hier jusqu’aux 3 prochains jours. Ces deux gros attributs ne sont pas enregistrés dans la base de données de l’historique.
   - Prochaine marée haute et prochaine marée basse : des horodatages, avec la hauteur (`height`) en attribut. Pratiques pour les automatisations.
 - Les prédictions sont téléchargées une fois par heure; le niveau actuel est recalculé toutes les 5 minutes (réglable).
 - Interface en français et en anglais.
@@ -155,9 +165,9 @@ Le capteur YAML `platform: dfo_tides` n’est plus importé; ajoutez plutôt la 
 
 ### Développement
 
-- Tests de l’intégration : `pytest` (requiert `pytest-homeassistant-custom-component`, Python 3.13). Ils utilisent des réponses de MPO et de la NOAA enregistrées dans `tests/fixtures`.
+- Tests de l’intégration : `pytest` (requiert `pytest-homeassistant-custom-component`, Python 3.13). Ils utilisent des réponses de chaque source enregistrées dans `tests/fixtures`.
 - La carte a son propre dépôt : [olivierouellet/Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card#français).
 - **Ajouter un pays :** écrivez un client qui hérite de `TideClient` dans `api.py` (implémentez `async_get_stations` et `_async_get_predictions`, ainsi que `_async_get_extremes` si certaines stations ne publient que les marées hautes et basses), inscrivez-le dans `PROVIDERS` de `providers.py` avec ses pays, et ajoutez son libellé sous `selector.provider` dans `strings.json` et chaque traduction. Un test vérifie que chaque source a un libellé dans chaque langue.
 - L’icône de l’intégration se trouve dans `custom_components/mare_tides/brand/` (Home Assistant 2026.3 ou plus récent l’affiche automatiquement). Sa source est `assets/icon.svg`; après une modification, exportez `icon@2x.png` en 512×512 et `icon.png` en 256×256.
 
-Données : Pêches et Océans Canada, [API du Système intégré des niveaux d’eau](https://api-iwls.dfo-mpo.gc.ca/); NOAA Center for Operational Oceanographic Products and Services, [Tides and Currents](https://tidesandcurrents.noaa.gov/). Les prédictions ne doivent pas servir à la navigation.
+Données : Pêches et Océans Canada, [API du Système intégré des niveaux d’eau](https://api-iwls.dfo-mpo.gc.ca/); NOAA Center for Operational Oceanographic Products and Services, [Tides and Currents](https://tidesandcurrents.noaa.gov/); Kartverket, [Se havnivå](https://www.kartverket.no/en/at-sea/se-havniva) (CC BY 4.0); Rijkswaterstaat, [Waterinfo](https://waterinfo.rws.nl/); Marine Institute, [réseau national irlandais de marégraphes](https://erddap.marine.ie/erddap/tabledap/imiTidePrediction.html). Les prédictions ne doivent pas servir à la navigation.
