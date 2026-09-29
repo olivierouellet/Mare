@@ -17,7 +17,7 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .api import interpolate
+from .api import interpolate, station_title
 from .const import (
     CONF_HILO_ONLY,
     CONF_LATITUDE,
@@ -63,7 +63,7 @@ class MareTidesEntity(CoordinatorEntity[MareTidesCoordinator]):
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
             manufacturer=provider.attribution,
-            model=f"{entry.data.get(CONF_STATION_NAME)} ({entry.data.get(CONF_STATION_CODE)})",
+            model=station_title(entry.data.get(CONF_STATION_NAME, ""), entry.data.get(CONF_STATION_CODE, "")),
             entry_type=DeviceEntryType.SERVICE,
             configuration_url=provider.station_url(entry.data[CONF_STATION_ID], entry.data.get(CONF_STATION_CODE, "")),
         )
@@ -112,6 +112,7 @@ class TideLevelSensor(MareTidesEntity, SensorEntity):
             "latitude": entry.data.get(CONF_LATITUDE),
             "longitude": entry.data.get(CONF_LONGITUDE),
             "provider": entry.data.get(CONF_PROVIDER),
+            "datum": self.coordinator.provider.datum,
             # True when the curve is drawn through the highs and lows (stations with highs and lows only).
             "interpolated": entry.data.get(CONF_HILO_ONLY, False),
         }

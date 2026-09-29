@@ -25,7 +25,7 @@ from homeassistant.helpers.selector import (
     TextSelector,
 )
 
-from .api import Station, TideApiError, nearest, search, station_label
+from .api import Station, TideApiError, nearest, search, station_label, station_title
 from .const import (
     CONF_HILO_ONLY,
     CONF_LATITUDE,
@@ -247,7 +247,7 @@ class MareTidesOptionsFlow(StationPickerMixin, OptionsFlow):
                     vol.Optional(CONF_CHANGE_STATION, default=False): BooleanSelector(),
                 }
             ),
-            description_placeholders={"station": f"{station} ({entry.data.get(CONF_STATION_CODE, '')})"},
+            description_placeholders={"station": station_title(station, entry.data.get(CONF_STATION_CODE, ""))},
         )
 
     def _default_provider(self) -> str:
@@ -268,4 +268,3 @@ class MareTidesOptionsFlow(StationPickerMixin, OptionsFlow):
             entry, data=data, title=title, unique_id=unique_id, options=self._new_options
         )
         return self.async_create_entry(data=self._new_options)
-

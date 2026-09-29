@@ -122,7 +122,10 @@
     "provider": {
       "options": {
         "dfo": "Canada: Fisheries and Oceans Canada (DFO)",
-        "noaa": "United States: NOAA Tides and Currents"
+        "noaa": "United States: NOAA Tides and Currents",
+        "kartverket": "Norway: Kartverket (Norwegian Mapping Authority)",
+        "rijkswaterstaat": "Netherlands: Rijkswaterstaat",
+        "marine_institute": "Ireland: Marine Institute"
       }
     }
   }

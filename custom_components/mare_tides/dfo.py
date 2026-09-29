@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
-from .api import Station, TideApiError, TideClient, format_utc, interpolate, parse_time
+from .api import Station, TideApiError, TideClient, classify_extremes, format_utc, parse_time
 
 BASE_URL = "https://api-iwls.dfo-mpo.gc.ca/api/v1"
 
@@ -17,7 +17,7 @@ class DfoClient(TideClient):
     """Minimal async client for the endpoints this integration needs."""
 
     async def _get(self, path: str, params: dict[str, str] | None = None) -> list[dict[str, Any]]:
-        payload = await self._get_json(f"{BASE_URL}{path}", params)
+        payload = await self._fetch(f"{BASE_URL}{path}", params=params)
         # The API returns a bare list; older docs show a {"data": [...]} wrapper.
         if isinstance(payload, dict):
             payload = payload.get("data")
@@ -74,27 +74,3 @@ def _parse_series(raw: list[dict[str, Any]]) -> list[tuple[datetime, float]]:
             continue
     series.sort(key=lambda p: p[0])
     return series
-
-
-def classify_extremes(
-    hilo: list[tuple[datetime, float]], points: list[tuple[datetime, float]]
-) -> list[tuple[datetime, float, str]]:
-    """Label each high/low point as "high" or "low".
-
-    The API does not say which is which. The prediction curve is the reference: a high
-    sits above the curve two hours before and after it. Neighbouring points (highs and
-    lows alternate) are only used when the curve does not cover the point.
-    """
-    extremes = []
-    for i, (when, value) in enumerate(hilo):
-        ref = [
-            v
-            for v in (interpolate(points, when - timedelta(hours=2)), interpolate(points, when + timedelta(hours=2)))
-            if v is not None
-        ]
-        if not ref:
-            ref = [hilo[j][1] for j in (i - 1, i + 1) if 0 <= j < len(hilo)]
-        if not ref:
-            continue
-        extremes.append((when, value, "high" if value > sum(ref) / len(ref) else "low"))
-    return extremes

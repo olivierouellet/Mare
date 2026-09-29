@@ -13,6 +13,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import aiohttp
+from yarl import URL
 
 TIMEOUT = aiohttp.ClientTimeout(total=30)
 
@@ -60,13 +61,28 @@ class TideClient(ABC):
     def __init__(self, session: aiohttp.ClientSession) -> None:
         self._session = session
 
-    async def _get_json(self, url: str, params: dict[str, str] | None = None) -> Any:
-        """GET a JSON document; network errors and non-200 answers raise TideApiError."""
+    async def _fetch(
+        self,
+        url: str | URL,
+        *,
+        params: dict[str, str] | None = None,
+        json: Any = None,
+        text: bool = False,
+        empty: frozenset[int] = frozenset(),
+    ) -> Any:
+        """GET `url` (POST when a `json` body is given) and decode the JSON (or `text`) answer.
+
+        Statuses in `empty` mean "no data" and return None. Network errors and other
+        non-200 answers raise TideApiError.
+        """
+        method = "GET" if json is None else "POST"
         try:
-            async with self._session.get(url, params=params, timeout=TIMEOUT) as resp:
+            async with self._session.request(method, url, params=params, json=json, timeout=TIMEOUT) as resp:
+                if resp.status in empty:
+                    return None
                 if resp.status != 200:
                     raise TideApiError(f"HTTP {resp.status} for {url}")
-                return await resp.json(content_type=None)
+                return await resp.text() if text else await resp.json(content_type=None)
         except (aiohttp.ClientError, asyncio.TimeoutError, ValueError) as err:
             raise TideApiError(f"Error requesting {url}: {err}") from err
 
@@ -129,6 +145,30 @@ def interpolate(points: list[tuple[datetime, float]], when: datetime) -> float |
     return v0 + (v1 - v0) * ratio
 
 
+def classify_extremes(
+    hilo: list[tuple[datetime, float]], points: list[tuple[datetime, float]]
+) -> list[tuple[datetime, float, str]]:
+    """Label each high/low point as "high" or "low", for services that do not say which.
+
+    The prediction curve is the reference: a high sits above the curve two hours before
+    and after it. Neighbouring points (highs and lows alternate) are only used when the
+    curve does not cover the point.
+    """
+    extremes = []
+    for i, (when, value) in enumerate(hilo):
+        ref = [
+            v
+            for v in (interpolate(points, when - timedelta(hours=2)), interpolate(points, when + timedelta(hours=2)))
+            if v is not None
+        ]
+        if not ref:
+            ref = [hilo[j][1] for j in (i - 1, i + 1) if 0 <= j < len(hilo)]
+        if not ref:
+            continue
+        extremes.append((when, value, "high" if value > sum(ref) / len(ref) else "low"))
+    return extremes
+
+
 def cosine_curve(
     extremes: list[tuple[datetime, float, str]],
     start: datetime,
@@ -184,6 +224,11 @@ def search(stations: list[Station], query: str, lat: float, lon: float, limit: i
 def fold(text: str) -> str:
     """Lower-case and strip accents so "Riviere" matches "Rivière"."""
     return "".join(c for c in unicodedata.normalize("NFD", text.casefold()) if unicodedata.category(c) != "Mn")
+
+
+def station_title(name: str, code: str) -> str:
+    """Title such as "Halifax (00490)", or just the name when there is no code."""
+    return f"{name} ({code})" if code else name
 
 
 def station_label(station: Station, distance_km: float | None = None) -> str:

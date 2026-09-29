@@ -122,7 +122,10 @@
     "provider": {
       "options": {
         "dfo": "Canada : Pêches et Océans Canada (MPO)",
-        "noaa": "États-Unis : NOAA Tides and Currents"
+        "noaa": "États-Unis : NOAA Tides and Currents",
+        "kartverket": "Norvège : Kartverket (Autorité cartographique norvégienne)",
+        "rijkswaterstaat": "Pays-Bas : Rijkswaterstaat",
+        "marine_institute": "Irlande : Marine Institute"
       }
     }
   }

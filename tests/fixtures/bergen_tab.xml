@@ -1,0 +1,27 @@
+<tide>
+<stationdata>
+<location name="Bergen" code="BGO" latitude="60.398046" longitude="5.320487">
+<data type="prediction" unit="cm" reflevelcode="CD">
+<waterlevel value="35.4" time="2026-09-26T03:22:00+00:00" flag="low"/>
+<waterlevel value="158.6" time="2026-09-26T09:39:00+00:00" flag="high"/>
+<waterlevel value="40.4" time="2026-09-26T15:31:00+00:00" flag="low"/>
+<waterlevel value="167.0" time="2026-09-26T21:42:00+00:00" flag="high"/>
+<waterlevel value="29.6" time="2026-09-27T03:53:00+00:00" flag="low"/>
+<waterlevel value="163.0" time="2026-09-27T10:12:00+00:00" flag="high"/>
+<waterlevel value="35.2" time="2026-09-27T16:04:00+00:00" flag="low"/>
+<waterlevel value="170.3" time="2026-09-27T22:18:00+00:00" flag="high"/>
+<waterlevel value="27.1" time="2026-09-28T04:26:00+00:00" flag="low"/>
+<waterlevel value="165.1" time="2026-09-28T10:47:00+00:00" flag="high"/>
+<waterlevel value="33.4" time="2026-09-28T16:38:00+00:00" flag="low"/>
+<waterlevel value="170.7" time="2026-09-28T22:56:00+00:00" flag="high"/>
+<waterlevel value="28.4" time="2026-09-29T05:00:00+00:00" flag="low"/>
+<waterlevel value="164.4" time="2026-09-29T11:24:00+00:00" flag="high"/>
+<waterlevel value="35.5" time="2026-09-29T17:14:00+00:00" flag="low"/>
+<waterlevel value="167.8" time="2026-09-29T23:37:00+00:00" flag="high"/>
+<waterlevel value="33.9" time="2026-09-30T05:35:00+00:00" flag="low"/>
+<waterlevel value="160.8" time="2026-09-30T12:05:00+00:00" flag="high"/>
+<waterlevel value="41.1" time="2026-09-30T17:53:00+00:00" flag="low"/>
+</data>
+</location>
+</stationdata>
+</tide>

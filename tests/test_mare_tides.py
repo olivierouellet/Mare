@@ -246,3 +246,66 @@ def test_provider_for_country() -> None:
     assert provider_for_country("US") == "noaa"
     assert provider_for_country("PR") == "noaa"
     assert provider_for_country(None) == "dfo"
+
+
+EUROPE = [
+    # provider, time zone, home, station ID, entity prefix, level, next low, next high, datum
+    (
+        "kartverket", "Europe/Oslo", (60.3913, 5.3221), "BGO", "sensor.bergen",
+        0.466, ("2026-09-27T16:04:00+00:00", 0.352), ("2026-09-27T22:18:00+00:00", 1.703), "Chart datum",
+    ),
+    (
+        "rijkswaterstaat", "Europe/Amsterdam", (51.9769, 4.1198), "hoekvanholland", "sensor.hoek_van_holland",
+        1.12, ("2026-09-27T19:07:00+00:00", -0.67), ("2026-09-28T02:29:00+00:00", 1.51), "NAP",
+    ),
+    (
+        "marine_institute", "Europe/Dublin", (53.3457, -6.2217), "Dublin_Port", "sensor.dublin_port",
+        -0.45, ("2026-09-27T17:15:00+00:00", -1.798), ("2026-09-27T23:55:00+00:00", 1.846), "OD Malin",
+    ),
+]
+
+
+@pytest.mark.freeze_time(NOW)
+@pytest.mark.parametrize(
+    ("provider", "time_zone", "home", "station_id", "prefix", "level", "next_low", "next_high", "datum"),
+    EUROPE,
+    ids=[e[0] for e in EUROPE],
+)
+async def test_european_provider(
+    hass: HomeAssistant, europe_api, provider, time_zone, home, station_id, prefix, level, next_low, next_high, datum
+) -> None:
+    await hass.config.async_set_time_zone(time_zone)
+    result = await _start(hass, provider)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_LOCATION: {"latitude": home[0], "longitude": home[1]}}
+    )
+    options = result["data_schema"].schema["station"].config["options"]
+    assert options[0]["value"] == station_id
+
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"station": station_id})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["result"].unique_id == f"{provider}_{station_id}"
+    await hass.async_block_till_done()
+
+    state = hass.states.get(f"{prefix}_tide_level")
+    assert float(state.state) == pytest.approx(level)
+    assert state.attributes["provider"] == provider
+    assert state.attributes["datum"] == datum
+    assert state.attributes["trend"] == "falling"
+    kinds = [e["type"] for e in state.attributes["tide_extremes"]]
+    assert kinds and all(a != b for a, b in zip(kinds, kinds[1:]))
+
+    low = hass.states.get(f"{prefix}_next_low_tide")
+    high = hass.states.get(f"{prefix}_next_high_tide")
+    assert (low.state, low.attributes["height"]) == (next_low[0], pytest.approx(next_low[1]))
+    assert (high.state, high.attributes["height"]) == (next_high[0], pytest.approx(next_high[1]))
+
+
+@pytest.mark.freeze_time(NOW)
+async def test_rijkswaterstaat_lists_only_locations_with_predictions(hass: HomeAssistant, europe_api) -> None:
+    result = await _start(hass, "rijkswaterstaat")
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_LOCATION: {"latitude": 51.9769, "longitude": 4.1198}}
+    )
+    values = [o["value"] for o in result["data_schema"].schema["station"].config["options"]]
+    assert "hoekvanholland.splitsingsdam" not in values  # no astronomical series

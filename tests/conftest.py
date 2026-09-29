@@ -7,7 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from pytest_homeassistant_custom_component.test_util.aiohttp import AiohttpClientMocker
+from pytest_homeassistant_custom_component.test_util.aiohttp import (
+    AiohttpClientMocker,
+    AiohttpClientMockResponse,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -20,7 +23,11 @@ NOW = "2026-09-27T15:00:00+00:00"  # 12:00 in Halifax, 11:00 in Boston
 
 
 def load(name: str):
-    return json.loads((FIXTURES / name).read_text())
+    return json.loads(load_text(name))
+
+
+def load_text(name: str) -> str:
+    return (FIXTURES / name).read_text()
 
 
 @pytest.fixture(autouse=True)
@@ -64,4 +71,25 @@ def noaa_api(aioclient_mock: AiohttpClientMocker) -> AiohttpClientMocker:
     aioclient_mock.get(re.compile(rf"station={BOSTON_ID}.*interval=15(&|$)"), json=load("boston_15.json"))
     aioclient_mock.get(re.compile(rf"station={BOSTON_ID}.*interval=hilo"), json=load("boston_hilo.json"))
     aioclient_mock.get(re.compile(rf"station={HULL_ID}.*interval=hilo"), json=load("hull_hilo.json"))
+    return aioclient_mock
+
+
+@pytest.fixture
+def europe_api(aioclient_mock: AiohttpClientMocker) -> AiohttpClientMocker:
+    """Serve recorded Kartverket (Bergen), Rijkswaterstaat (Hoek van Holland) and Marine Institute (Dublin) responses."""
+    aioclient_mock.get(re.compile(r"tideapi\.php.*tide_request=stationlist"), text=load_text("kartverket_stations.xml"))
+    aioclient_mock.get(re.compile(r"tideapi\.php.*datatype=pre"), text=load_text("bergen_pre.xml"))
+    aioclient_mock.get(re.compile(r"tideapi\.php.*datatype=tab"), text=load_text("bergen_tab.xml"))
+
+    async def rws_data(method, url, data):
+        # Both requests share a URL; the body says whether the high/low waters are wanted.
+        grouped = "Groepering" in data["AquoPlusWaarnemingMetadata"]["AquoMetadata"]
+        return AiohttpClientMockResponse(method, url, json=load("hvh_extremes.json" if grouped else "hvh_curve.json"))
+
+    aioclient_mock.post(re.compile(r"/OphalenCatalogus$"), json=load("rws_catalogue.json"))
+    aioclient_mock.post(re.compile(r"/OphalenWaarnemingen$"), side_effect=rws_data)
+
+    aioclient_mock.get(re.compile(r"/imiTidePrediction\.csv\?stationID"), text=load_text("marine_stations.csv"))
+    aioclient_mock.get(re.compile(r"/imiTidePrediction\.csv\?time"), text=load_text("dublin_curve.csv"))
+    aioclient_mock.get(re.compile(r"/IMI_TidePrediction_HighLow\.csv"), text=load_text("dublin_hilo.csv"))
     return aioclient_mock

@@ -1,0 +1,160 @@
+{
+ "Succesvol": true,
+ "AquoMetadataLijst": [
+  {
+   "AquoMetadata_MessageID": 1,
+   "Grootheid": {
+    "Code": "50%_L",
+    "Omschrijving": "50 percentiel van de levendigheid"
+   },
+   "Parameter_Wat_Omschrijving": "Percentielen per etmaal Levendigheid 50 percentiel van de levendigheid in Oppervlaktewater in cm2",
+   "ProcesType": "meting"
+  },
+  {
+   "AquoMetadata_MessageID": 81,
+   "Grootheid": {
+    "Code": "NVT",
+    "Omschrijving": "NVT"
+   },
+   "Parameter_Wat_Omschrijving": "Getijextreemtype astronomisch in Oppervlaktewater",
+   "ProcesType": "astronomisch"
+  },
+  {
+   "AquoMetadata_MessageID": 128,
+   "Grootheid": {
+    "Code": "WATHTE",
+    "Omschrijving": "Waterhoogte"
+   },
+   "Parameter_Wat_Omschrijving": "Waterhoogte astronomisch in Oppervlaktewater t.o.v. Normaal Amsterdams Peil in cm",
+   "ProcesType": "astronomisch"
+  }
+ ],
+ "AquoMetadataLocatieLijst": [
+  {
+   "AquoMetaData_MessageID": 1,
+   "Locatie_MessageID": 1319
+  },
+  {
+   "AquoMetaData_MessageID": 81,
+   "Locatie_MessageID": 499
+  },
+  {
+   "AquoMetaData_MessageID": 81,
+   "Locatie_MessageID": 639
+  },
+  {
+   "AquoMetaData_MessageID": 81,
+   "Locatie_MessageID": 1319
+  },
+  {
+   "AquoMetaData_MessageID": 81,
+   "Locatie_MessageID": 3190
+  },
+  {
+   "AquoMetaData_MessageID": 81,
+   "Locatie_MessageID": 5986
+  },
+  {
+   "AquoMetaData_MessageID": 81,
+   "Locatie_MessageID": 8248
+  },
+  {
+   "AquoMetaData_MessageID": 128,
+   "Locatie_MessageID": 499
+  },
+  {
+   "AquoMetaData_MessageID": 128,
+   "Locatie_MessageID": 639
+  },
+  {
+   "AquoMetaData_MessageID": 128,
+   "Locatie_MessageID": 1319
+  },
+  {
+   "AquoMetaData_MessageID": 128,
+   "Locatie_MessageID": 3190
+  },
+  {
+   "AquoMetaData_MessageID": 128,
+   "Locatie_MessageID": 5986
+  },
+  {
+   "AquoMetaData_MessageID": 128,
+   "Locatie_MessageID": 8248
+  }
+ ],
+ "LocatieLijst": [
+  {
+   "Locatie_MessageID": 5986,
+   "Code": "scheurhaven",
+   "Coordinatenstelsel": "ETRS89",
+   "Lat": 51.962297,
+   "Lon": 4.138792,
+   "Naam": "Scheurhaven",
+   "Omschrijving": "Scheurhaven"
+  },
+  {
+   "Locatie_MessageID": 1319,
+   "Code": "hoekvanholland",
+   "Coordinatenstelsel": "ETRS89",
+   "Lat": 51.976899,
+   "Lon": 4.119827,
+   "Naam": "Hoek van Holland",
+   "Omschrijving": "rechter oever kilometer 1030.1"
+  },
+  {
+   "Locatie_MessageID": 6992,
+   "Code": "hoekvanholland.zuidoever",
+   "Coordinatenstelsel": "ETRS89",
+   "Lat": 51.97928,
+   "Lon": 4.11139,
+   "Naam": "Hoek van Holland, zuidoever",
+   "Omschrijving": "Hoek van Holland, zuidoever"
+  },
+  {
+   "Locatie_MessageID": 10161,
+   "Code": "hoekvanholland.splitsingsdam",
+   "Coordinatenstelsel": "ETRS89",
+   "Lat": 51.972365,
+   "Lon": 4.116127,
+   "Naam": "Hoek van Holland, splitsingsdam",
+   "Omschrijving": "Hoek van Holland, splitsingsdam"
+  },
+  {
+   "Locatie_MessageID": 499,
+   "Code": "beerkanaal",
+   "Coordinatenstelsel": "ETRS89",
+   "Lat": 51.971117,
+   "Lon": 4.097315,
+   "Naam": "Beerkanaal",
+   "Omschrijving": "Beerkanaal"
+  },
+  {
+   "Locatie_MessageID": 3190,
+   "Code": "tennesseehaven",
+   "Coordinatenstelsel": "ETRS89",
+   "Lat": 51.963507,
+   "Lon": 4.093561,
+   "Naam": "Tennesseehaven",
+   "Omschrijving": "Tennesseehaven"
+  },
+  {
+   "Locatie_MessageID": 8248,
+   "Code": "hoekvanholland.maeslantkering.beneden.noord",
+   "Coordinatenstelsel": "ETRS89",
+   "Lat": 51.958239,
+   "Lon": 4.161443,
+   "Naam": "Hoek van Holland, Maeslantkering, Beneden, noord",
+   "Omschrijving": "zeezijde"
+  },
+  {
+   "Locatie_MessageID": 639,
+   "Code": "rotterdam.dintelhaven",
+   "Coordinatenstelsel": "ETRS89",
+   "Lat": 51.954265,
+   "Lon": 4.120655,
+   "Naam": "Rotterdam, Dintelhaven",
+   "Omschrijving": "Rotterdam, Dintelhaven"
+  }
+ ]
+}

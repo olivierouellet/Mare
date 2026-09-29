@@ -20,7 +20,7 @@ class NoaaClient(TideClient):
     """
 
     async def _get(self, url: str, params: dict[str, str]) -> dict[str, Any]:
-        payload = await self._get_json(url, params)
+        payload = await self._fetch(url, params=params)
         if not isinstance(payload, dict):
             raise TideApiError(f"Unexpected response format for {url}")
         # Errors come back with HTTP 200 and an "error" object.
