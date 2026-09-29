@@ -30,6 +30,7 @@ from homeassistant.helpers.selector import (
 
 from .api import Station, TideApiError, TideAuthError, nearest, search, station_label, station_title
 from .const import (
+    CONF_COUNTRY,
     CONF_HILO_ONLY,
     CONF_LATITUDE,
     CONF_LONGITUDE,
@@ -45,7 +46,7 @@ from .const import (
     NEAREST_COUNT,
     SEARCH_LIMIT,
 )
-from .providers import PROVIDERS, provider_for_country
+from .providers import COUNTRIES, PROVIDERS, default_country, providers_for_country
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -103,9 +104,10 @@ def _station_selector(ranked: list[tuple[Station, float]]) -> SelectSelector:
 
 
 class StationPickerMixin:
-    """Shared source → location → nearest stations → search steps for both flows."""
+    """Shared country → source → location → nearest stations → search steps for both flows."""
 
     hass: HomeAssistant
+    _country: str
     _provider: str
     _api_key: str | None = None
     _stations: list[Station]
@@ -114,14 +116,17 @@ class StationPickerMixin:
     async def _async_station_chosen(self, station: Station) -> ConfigFlowResult:
         raise NotImplementedError
 
-    def _default_provider(self) -> str:
-        return provider_for_country(self.hass.config.country)
+    def _default_country(self) -> str:
+        return default_country(self.hass.config.country)
+
+    def _default_provider(self, choices: list[str]) -> str:
+        return choices[0]
 
     def _default_api_key(self) -> str | None:
         return None
 
     def _entry_data(self, station: Station) -> dict[str, Any]:
-        data = station_data(station)
+        data = {**station_data(station), CONF_COUNTRY: self._country}
         if self._api_key:
             data[CONF_API_KEY] = self._api_key
         return data
@@ -138,8 +143,30 @@ class StationPickerMixin:
             return "cannot_connect"
         return None if self._stations else "no_stations"
 
+    async def async_step_country(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Choose the country; the next step shows where its predictions come from."""
+        if user_input is not None:
+            self._country = user_input[CONF_COUNTRY]
+            return await self.async_step_source()
+
+        return self.async_show_form(  # type: ignore[attr-defined]
+            step_id="country",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_COUNTRY, default=self._default_country()): SelectSelector(
+                        SelectSelectorConfig(
+                            options=list(COUNTRIES),
+                            mode=SelectSelectorMode.DROPDOWN,
+                            translation_key=CONF_COUNTRY,
+                            sort=True,
+                        )
+                    )
+                }
+            ),
+        )
+
     async def async_step_source(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        """Choose where the predictions come from (one service per country)."""
+        """Show (and, where there are several, choose) the service for the chosen country."""
         if user_input is not None:
             self._provider = user_input[CONF_PROVIDER]
             self._api_key = None
@@ -147,14 +174,13 @@ class StationPickerMixin:
                 return await self.async_step_api_key()
             return await self.async_step_location()
 
+        choices = providers_for_country(self._country)
         return self.async_show_form(  # type: ignore[attr-defined]
             step_id="source",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_PROVIDER, default=self._default_provider()): SelectSelector(
-                        SelectSelectorConfig(
-                            options=list(PROVIDERS), mode=SelectSelectorMode.LIST, translation_key=CONF_PROVIDER
-                        )
+                    vol.Required(CONF_PROVIDER, default=self._default_provider(choices)): SelectSelector(
+                        SelectSelectorConfig(options=choices, mode=SelectSelectorMode.LIST, translation_key=CONF_PROVIDER)
                     )
                 }
             ),
@@ -244,7 +270,7 @@ class MareTidesConfigFlow(StationPickerMixin, ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        return await self.async_step_source(user_input)
+        return await self.async_step_country(user_input)
 
     async def _async_station_chosen(self, station: Station) -> ConfigFlowResult:
         await self.async_set_unique_id(station_unique_id(station))
@@ -290,7 +316,7 @@ class MareTidesOptionsFlow(StationPickerMixin, OptionsFlow):
         if user_input is not None:
             self._new_options = {**entry.options, CONF_UPDATE_INTERVAL: int(user_input[CONF_UPDATE_INTERVAL])}
             if user_input.get(CONF_CHANGE_STATION):
-                return await self.async_step_source()
+                return await self.async_step_country()
             return self.async_create_entry(data=self._new_options)
 
         station = entry.data.get(CONF_STATION_NAME, entry.title)
@@ -316,8 +342,13 @@ class MareTidesOptionsFlow(StationPickerMixin, OptionsFlow):
             description_placeholders={"station": station_title(station, entry.data.get(CONF_STATION_CODE, ""))},
         )
 
-    def _default_provider(self) -> str:
-        return self.config_entry.data[CONF_PROVIDER]
+    def _default_country(self) -> str:
+        data = self.config_entry.data
+        return data.get(CONF_COUNTRY) or PROVIDERS[data[CONF_PROVIDER]].countries[0]
+
+    def _default_provider(self, choices: list[str]) -> str:
+        current = self.config_entry.data[CONF_PROVIDER]
+        return current if current in choices else choices[0]
 
     def _default_api_key(self) -> str | None:
         """Keep the current key when staying with the same service."""

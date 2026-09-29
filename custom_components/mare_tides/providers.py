@@ -18,7 +18,7 @@ class Provider:
     """A tide prediction service and how to credit and link to it."""
 
     client: type[TideClient]
-    countries: tuple[str, ...]  # ISO 3166 codes; the setup flow suggests the provider for these
+    countries: tuple[str, ...]  # ISO 3166 codes it covers; the setup flow lists these countries
     attribution: str
     datum: str  # what heights are measured from
     station_url: Callable[[str, str], str]  # (station id, station code) → web page
@@ -36,7 +36,7 @@ PROVIDERS: dict[str, Provider] = {
     ),
     "noaa": Provider(
         client=NoaaClient,
-        countries=("US", "PR", "VI", "GU", "AS", "MP"),
+        countries=("US", "PR", "VI", "GU", "AS", "MP", "MX"),
         attribution="NOAA Tides and Currents",
         datum="MLLW",
         station_url=lambda station_id, _code: (
@@ -75,6 +75,15 @@ PROVIDERS: dict[str, Provider] = {
 }
 
 
-def provider_for_country(country: str | None) -> str:
-    """The provider covering a country, or the first one."""
-    return next((key for key, p in PROVIDERS.items() if country in p.countries), next(iter(PROVIDERS)))
+# Every country the setup flow offers, in registry order.
+COUNTRIES: tuple[str, ...] = tuple(dict.fromkeys(c for p in PROVIDERS.values() for c in p.countries))
+
+
+def providers_for_country(country: str) -> list[str]:
+    """The providers covering a country, in registry order."""
+    return [key for key, p in PROVIDERS.items() if country in p.countries]
+
+
+def default_country(country: str | None) -> str:
+    """Home Assistant's country when a provider covers it, otherwise the first one."""
+    return country if country in COUNTRIES else COUNTRIES[0]

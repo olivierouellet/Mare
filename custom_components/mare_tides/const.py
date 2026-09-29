@@ -3,6 +3,7 @@ from datetime import timedelta
 
 DOMAIN = "mare_tides"
 
+CONF_COUNTRY = "country"
 CONF_PROVIDER = "provider"
 CONF_STATION_ID = "station_id"
 CONF_STATION_CODE = "station_code"

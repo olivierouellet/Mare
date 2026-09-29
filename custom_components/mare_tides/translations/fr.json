@@ -1,9 +1,16 @@
 {
   "config": {
     "step": {
+      "country": {
+        "title": "Choisir un pays",
+        "description": "Mare utilise les prédictions de marée officielles de chaque pays.",
+        "data": {
+          "country": "Pays"
+        }
+      },
       "source": {
-        "title": "Choisir une source de données",
-        "description": "Les prédictions de marée proviennent du service officiel de chaque pays.",
+        "title": "Source des données",
+        "description": "Les prédictions de marée de ce pays proviennent de ce service.",
         "data": {
           "provider": "Source"
         }
@@ -71,9 +78,16 @@
           "update_interval": "Les prédictions sont téléchargées une fois par heure; ce réglage contrôle seulement la fréquence de mise à jour du niveau actuel."
         }
       },
+      "country": {
+        "title": "Choisir un pays",
+        "description": "Mare utilise les prédictions de marée officielles de chaque pays.",
+        "data": {
+          "country": "Pays"
+        }
+      },
       "source": {
-        "title": "Choisir une source de données",
-        "description": "Les prédictions de marée proviennent du service officiel de chaque pays.",
+        "title": "Source des données",
+        "description": "Les prédictions de marée de ce pays proviennent de ce service.",
         "data": {
           "provider": "Source"
         }
@@ -143,14 +157,34 @@
     }
   },
   "selector": {
+    "country": {
+      "options": {
+        "CA": "Canada",
+        "US": "États-Unis",
+        "PR": "Porto Rico",
+        "VI": "Îles Vierges des États-Unis",
+        "GU": "Guam",
+        "AS": "Samoa américaines",
+        "MP": "Îles Mariannes du Nord",
+        "MX": "Mexique",
+        "NO": "Norvège",
+        "SJ": "Svalbard et Jan Mayen",
+        "NL": "Pays-Bas",
+        "IE": "Irlande",
+        "GB": "Royaume-Uni",
+        "IM": "Île de Man",
+        "JE": "Jersey",
+        "GG": "Guernesey"
+      }
+    },
     "provider": {
       "options": {
-        "dfo": "Canada : Pêches et Océans Canada (MPO)",
-        "noaa": "États-Unis : NOAA Tides and Currents",
-        "kartverket": "Norvège : Kartverket (Autorité cartographique norvégienne)",
-        "rijkswaterstaat": "Pays-Bas : Rijkswaterstaat",
-        "marine_institute": "Irlande : Marine Institute",
-        "admiralty": "Royaume-Uni : ADMIRALTY (Service hydrographique du Royaume-Uni, clé d'API)"
+        "dfo": "Pêches et Océans Canada (MPO)",
+        "noaa": "NOAA Tides and Currents",
+        "kartverket": "Kartverket (Autorité cartographique norvégienne)",
+        "rijkswaterstaat": "Rijkswaterstaat",
+        "marine_institute": "Marine Institute",
+        "admiralty": "ADMIRALTY, Service hydrographique du Royaume-Uni (clé d'API gratuite requise)"
       }
     }
   }

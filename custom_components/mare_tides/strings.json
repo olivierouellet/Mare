@@ -1,9 +1,16 @@
 {
   "config": {
     "step": {
+      "country": {
+        "title": "Choose a country",
+        "description": "Mare uses each country's official tide predictions.",
+        "data": {
+          "country": "Country"
+        }
+      },
       "source": {
-        "title": "Choose a data source",
-        "description": "Tide predictions come from each country's official service.",
+        "title": "Data source",
+        "description": "Tide predictions for this country come from this service.",
         "data": {
           "provider": "Source"
         }
@@ -71,9 +78,16 @@
           "update_interval": "Predictions are downloaded once an hour; this only controls how often the current level is refreshed."
         }
       },
+      "country": {
+        "title": "Choose a country",
+        "description": "Mare uses each country's official tide predictions.",
+        "data": {
+          "country": "Country"
+        }
+      },
       "source": {
-        "title": "Choose a data source",
-        "description": "Tide predictions come from each country's official service.",
+        "title": "Data source",
+        "description": "Tide predictions for this country come from this service.",
         "data": {
           "provider": "Source"
         }
@@ -143,14 +157,34 @@
     }
   },
   "selector": {
+    "country": {
+      "options": {
+        "CA": "Canada",
+        "US": "United States",
+        "PR": "Puerto Rico",
+        "VI": "U.S. Virgin Islands",
+        "GU": "Guam",
+        "AS": "American Samoa",
+        "MP": "Northern Mariana Islands",
+        "MX": "Mexico",
+        "NO": "Norway",
+        "SJ": "Svalbard and Jan Mayen",
+        "NL": "Netherlands",
+        "IE": "Ireland",
+        "GB": "United Kingdom",
+        "IM": "Isle of Man",
+        "JE": "Jersey",
+        "GG": "Guernsey"
+      }
+    },
     "provider": {
       "options": {
-        "dfo": "Canada: Fisheries and Oceans Canada (DFO)",
-        "noaa": "United States: NOAA Tides and Currents",
-        "kartverket": "Norway: Kartverket (Norwegian Mapping Authority)",
-        "rijkswaterstaat": "Netherlands: Rijkswaterstaat",
-        "marine_institute": "Ireland: Marine Institute",
-        "admiralty": "United Kingdom: ADMIRALTY (UK Hydrographic Office, API key)"
+        "dfo": "Fisheries and Oceans Canada (DFO)",
+        "noaa": "NOAA Tides and Currents",
+        "kartverket": "Kartverket (Norwegian Mapping Authority)",
+        "rijkswaterstaat": "Rijkswaterstaat",
+        "marine_institute": "Marine Institute",
+        "admiralty": "ADMIRALTY, UK Hydrographic Office (free API key needed)"
       }
     }
   }

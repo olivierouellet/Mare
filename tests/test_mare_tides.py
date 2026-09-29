@@ -18,7 +18,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from custom_components.mare_tides.admiralty import AdmiraltyClient
 from custom_components.mare_tides.api import TideClient, cosine_curve
 from custom_components.mare_tides.const import DOMAIN
-from custom_components.mare_tides.providers import PROVIDERS, provider_for_country
+from custom_components.mare_tides.providers import COUNTRIES, PROVIDERS, default_country, providers_for_country
 
 from .conftest import ADMIRALTY_KEY, BEDFORD_ID, BOSTON_ID, HALIFAX_ID, HULL_ID, NOW, SANDY_BEACH_ID, load
 
@@ -27,8 +27,12 @@ BOSTON = {"latitude": 42.3601, "longitude": -71.0589}
 
 
 async def _start(hass: HomeAssistant, provider: str = "dfo") -> dict:
-    """Start the user flow and pick the source; returns the location step."""
+    """Start the user flow, pick the provider's first country and the provider; returns the next step."""
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    assert result["step_id"] == "country"
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"country": PROVIDERS[provider].countries[0]}
+    )
     assert result["step_id"] == "source"
     return await hass.config_entries.flow.async_configure(result["flow_id"], {"provider": provider})
 
@@ -47,8 +51,11 @@ async def test_user_flow_lists_nearest_stations(halifax_home, dfo_api) -> None:
     hass = halifax_home
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "country"
+    assert result["data_schema"]({})["country"] == "CA"  # Home Assistant has no country set
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"country": "CA"})
     assert result["step_id"] == "source"
-    assert result["data_schema"]({})["provider"] == "dfo"  # default outside the US
+    assert result["data_schema"].schema["provider"].config["options"] == ["dfo"]
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"provider": "dfo"})
     assert result["step_id"] == "location"
 
@@ -65,6 +72,7 @@ async def test_user_flow_lists_nearest_stations(halifax_home, dfo_api) -> None:
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == "Halifax"
     assert result["result"].unique_id == f"dfo_{HALIFAX_ID}"
+    assert result["result"].data["country"] == "CA"
 
 
 @pytest.mark.freeze_time(NOW)
@@ -136,6 +144,9 @@ async def test_options_flow_changes_station_keeps_entity_ids(halifax_home, dfo_a
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], {"update_interval": 120, "change_station": True}
     )
+    assert result["step_id"] == "country"
+    assert result["data_schema"]({})["country"] == "CA"  # the entry's country
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {"country": "CA"})
     assert result["step_id"] == "source"
     result = await hass.config_entries.options.async_configure(result["flow_id"], {"provider": "dfo"})
     assert result["step_id"] == "location"
@@ -156,7 +167,9 @@ async def test_options_flow_changes_station_keeps_entity_ids(halifax_home, dfo_a
 async def test_noaa_reference_station(boston_home, noaa_api) -> None:
     hass = boston_home
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-    assert result["data_schema"]({})["provider"] == "noaa"  # default in the US
+    assert result["data_schema"]({})["country"] == "US"  # Home Assistant's country
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"country": "US"})
+    assert result["data_schema"]({})["provider"] == "noaa"
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"provider": "noaa"})
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_LOCATION: BOSTON})
     labels = [o["label"] for o in result["data_schema"].schema["station"].config["options"]]
@@ -233,21 +246,24 @@ def test_cosine_curve() -> None:
 
 
 def test_every_provider_is_complete() -> None:
-    """A new provider needs a client, its countries and a label in every language."""
+    """A new provider needs a client, its countries, and labels for both in every language."""
     component = Path(__file__).parent.parent / "custom_components" / DOMAIN
     for name in ("strings.json", "translations/en.json", "translations/fr.json"):
-        options = json.loads((component / name).read_text())["selector"]["provider"]["options"]
-        assert set(options) == set(PROVIDERS), name
+        selectors = json.loads((component / name).read_text())["selector"]
+        assert set(selectors["provider"]["options"]) == set(PROVIDERS), name
+        assert set(selectors["country"]["options"]) == set(COUNTRIES), name
     for provider in PROVIDERS.values():
         assert issubclass(provider.client, TideClient)
         assert provider.countries
 
 
-def test_provider_for_country() -> None:
-    assert provider_for_country("CA") == "dfo"
-    assert provider_for_country("US") == "noaa"
-    assert provider_for_country("PR") == "noaa"
-    assert provider_for_country(None) == "dfo"
+def test_countries() -> None:
+    assert default_country("US") == "US"
+    assert default_country("FR") == "CA"  # not covered: the first country
+    assert default_country(None) == "CA"
+    assert providers_for_country("MX") == ["noaa"]
+    assert providers_for_country("GB") == ["admiralty"]
+    assert all(providers_for_country(c) for c in COUNTRIES)
 
 
 EUROPE = [
