@@ -1,6 +1,6 @@
 {
-  "name": "Mare (DFO / MPO tides)",
-  "country": "CA",
+  "name": "Mare",
+  "country": ["CA", "US"],
   "render_readme": true,
   "homeassistant": "2025.1.0"
 }
