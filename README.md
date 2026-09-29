@@ -18,7 +18,7 @@
 
 ## English
 
-Mare brings official tide predictions into Home Assistant for **Canada, the United States, the United Kingdom, Norway, the Netherlands and Ireland**, and shows them on a dashboard card that labels **every high and low tide**.
+Mare brings official tide predictions into Home Assistant for **Canada, the United States, Mexico, the United Kingdom, Norway, the Netherlands and Ireland**, and shows them on a dashboard card that labels **every high and low tide**.
 
 It has two parts:
 
@@ -34,7 +34,7 @@ The card works **with** the integration (it reads the tide level sensor) or **wi
 | Country | Service | Heights relative to |
 |---|---|---|
 | Canada | Fisheries and Oceans Canada (DFO), [IWLS API](https://api-iwls.dfo-mpo.gc.ca/) | Chart datum |
-| United States | NOAA Tides and Currents, [CO-OPS API](https://api.tidesandcurrents.noaa.gov/api/prod/) | MLLW (mean lower low water) |
+| United States (and its territories), Mexico | NOAA Tides and Currents, [CO-OPS API](https://api.tidesandcurrents.noaa.gov/api/prod/) | MLLW (mean lower low water) |
 | United Kingdom | ADMIRALTY (UK Hydrographic Office), [UK Tidal API](https://admiraltyapi.portal.azure-api.net/) (free API key) | Chart datum |
 | Norway | Kartverket (Norwegian Mapping Authority), [tide API](https://vannstand.kartverket.no/tideapi_en.html) | Chart datum |
 | Netherlands | Rijkswaterstaat, [Waterwebservices](https://rijkswaterstaatdata.nl/waterdata/) | NAP (Normaal Amsterdams Peil) |
@@ -44,11 +44,11 @@ The card works **with** the integration (it reads the tide level sensor) or **wi
 
 Heights are measured from different references: chart datum and MLLW are near the lowest tides, while NAP and OD Malin are land survey levels, so lows are often negative. The tide level sensor has a `datum` attribute with the reference.
 
-About 2,200 NOAA stations are *subordinate* stations: NOAA only publishes their high and low tides. Mare draws their curve through those highs and lows with a cosine, and sets the `interpolated` attribute to `true`. The high and low tides are official; the level between them is a close estimate.
+About 2,200 NOAA stations, including most Mexican ports, are *subordinate* stations: NOAA only publishes their high and low tides. Mare draws their curve through those highs and lows with a cosine, and sets the `interpolated` attribute to `true`. The high and low tides are official; the level between them is a close estimate.
 
 ### Integration features
 
-- **Set up from the UI**: *Settings → Devices & services → Add integration → Mare*. Pick the country, then the 5 stations nearest your home are listed with their distance; you can move the map pin or search every station by name or code.
+- **Set up from the UI**: *Settings → Devices & services → Add integration → Mare*. Pick your country (the next step shows where its predictions come from), then the 5 stations nearest your home are listed with their distance; you can move the map pin or search every station by name or code.
 - **Change the station later** under *Configure*. Entity IDs don’t change, so your cards and automations keep working.
 - **Sensors**
   - `sensor.<station>_tide_level`: predicted level right now (m), with `trend` (`rising`/`falling`), `provider`, `datum`, `interpolated`, the whole curve (`tide_data`) and the official high/low points (`tide_extremes`) for yesterday through the next 3 days. The two large attributes are not written to the recorder database.
@@ -100,7 +100,7 @@ Data: Fisheries and Oceans Canada, [Integrated Water Level System API](https://a
 
 ## Français
 
-Mare intègre à Home Assistant les prédictions de marée officielles pour **le Canada, les États-Unis, le Royaume-Uni, la Norvège, les Pays-Bas et l’Irlande**, et les affiche dans une carte de tableau de bord qui indique **chaque marée haute et basse**.
+Mare intègre à Home Assistant les prédictions de marée officielles pour **le Canada, les États-Unis, le Mexique, le Royaume-Uni, la Norvège, les Pays-Bas et l’Irlande**, et les affiche dans une carte de tableau de bord qui indique **chaque marée haute et basse**.
 
 Le projet comporte deux parties :
 
@@ -116,7 +116,7 @@ La carte fonctionne **avec** l’intégration (elle lit le capteur de niveau de 
 | Pays | Service | Hauteurs par rapport au |
 |---|---|---|
 | Canada | Pêches et Océans Canada (MPO), [API SINE](https://api-iwls.dfo-mpo.gc.ca/) | Zéro des cartes |
-| États-Unis | NOAA Tides and Currents, [API CO-OPS](https://api.tidesandcurrents.noaa.gov/api/prod/) | MLLW (moyenne des basses mers inférieures) |
+| États-Unis (et leurs territoires), Mexique | NOAA Tides and Currents, [API CO-OPS](https://api.tidesandcurrents.noaa.gov/api/prod/) | MLLW (moyenne des basses mers inférieures) |
 | Royaume-Uni | ADMIRALTY (Service hydrographique du Royaume-Uni), [UK Tidal API](https://admiraltyapi.portal.azure-api.net/) (clé d’API gratuite) | Zéro des cartes |
 | Norvège | Kartverket (Autorité cartographique norvégienne), [API des marées](https://vannstand.kartverket.no/tideapi_en.html) | Zéro des cartes |
 | Pays-Bas | Rijkswaterstaat, [Waterwebservices](https://rijkswaterstaatdata.nl/waterdata/) | NAP (Normaal Amsterdams Peil) |
@@ -126,11 +126,11 @@ La carte fonctionne **avec** l’intégration (elle lit le capteur de niveau de 
 
 Les hauteurs n’ont pas toutes la même référence : le zéro des cartes et le MLLW sont près des plus basses marées, alors que le NAP et l’OD Malin sont des niveaux d’arpentage terrestres, où les basses mers sont souvent négatives. Le capteur de niveau de marée indique la référence dans l’attribut `datum`.
 
-Environ 2 200 stations de la NOAA sont des stations *secondaires* : la NOAA ne publie que leurs marées hautes et basses. Mare trace leur courbe entre ces marées hautes et basses avec un cosinus et met l’attribut `interpolated` à `true`. Les marées hautes et basses sont officielles; le niveau entre les deux est une bonne estimation.
+Environ 2 200 stations de la NOAA, dont la plupart des ports mexicains, sont des stations *secondaires* : la NOAA ne publie que leurs marées hautes et basses. Mare trace leur courbe entre ces marées hautes et basses avec un cosinus et met l’attribut `interpolated` à `true`. Les marées hautes et basses sont officielles; le niveau entre les deux est une bonne estimation.
 
 ### Fonctionnalités de l’intégration
 
-- **Configuration dans l’interface** : *Paramètres → Appareils et services → Ajouter une intégration → Mare*. Choisissez le pays; les 5 stations les plus proches de votre domicile sont proposées avec leur distance; vous pouvez déplacer l’épingle sur la carte ou chercher parmi toutes les stations par nom ou par code.
+- **Configuration dans l’interface** : *Paramètres → Appareils et services → Ajouter une intégration → Mare*. Choisissez votre pays (l’étape suivante indique la source de ses prédictions); les 5 stations les plus proches de votre domicile sont proposées avec leur distance; vous pouvez déplacer l’épingle sur la carte ou chercher parmi toutes les stations par nom ou par code.
 - **Changer de station plus tard** avec *Configurer*. Les identifiants d’entité ne changent pas : vos cartes et automatisations continuent de fonctionner.
 - **Capteurs**
   - `sensor.<station>_niveau_de_maree` (ou `_tide_level` en anglais) : niveau prédit en ce moment (m), avec `trend` (`rising`/`falling`, montante/descendante), `provider`, `datum`, `interpolated`, la courbe complète (`tide_data`) et les marées hautes et basses officielles (`tide_extremes`) d’hier jusqu’aux 3 prochains jours. Ces deux gros attributs ne sont pas enregistrés dans la base de données de l’historique.

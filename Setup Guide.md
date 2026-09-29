@@ -41,10 +41,11 @@ config/
 ### 2. Add a tide station
 
 1. *Settings → Devices & services → Add integration* → search for **Mare**.
-2. Pick the source: **Canada** (Fisheries and Oceans Canada, DFO), **United States** (NOAA), **United Kingdom** (ADMIRALTY, needs a free API key), **Norway** (Kartverket), **Netherlands** (Rijkswaterstaat) or **Ireland** (Marine Institute). It defaults to your Home Assistant country.
-   - **United Kingdom only:** paste your ADMIRALTY API key. Get it at the [ADMIRALTY developer portal](https://admiraltyapi.portal.azure-api.net/) by subscribing to *UK Tidal API - Discovery* (free). When the key expires, Home Assistant shows a *Reconfigure* notice under *Settings → Devices & services* asking for a new one.
-3. The map starts at your home location. Keep it, or move the pin to look for stations somewhere else, then submit.
-4. Pick one of the **5 nearest stations** (each shows its code and distance), or tick *Search all stations instead* and type part of a name or code.
+2. Pick your country. It defaults to your Home Assistant country.
+3. The next step shows where the predictions come from: **Canada**: Fisheries and Oceans Canada (DFO); **United States** and its territories, and **Mexico**: NOAA; **United Kingdom**, Isle of Man, Jersey and Guernsey: ADMIRALTY (needs a free API key); **Norway**: Kartverket; **Netherlands**: Rijkswaterstaat; **Ireland**: Marine Institute. Submit to continue.
+   - **United Kingdom only:** in the following step, paste your ADMIRALTY API key. Get it at the [ADMIRALTY developer portal](https://admiraltyapi.portal.azure-api.net/) by subscribing to *UK Tidal API - Discovery* (free). When the key expires, Home Assistant shows a *Reconfigure* notice under *Settings → Devices & services* asking for a new one.
+4. The map starts at your home location. Keep it, or move the pin to look for stations somewhere else, then submit.
+5. Pick one of the **5 nearest stations** (each shows its code and distance), or tick *Search all stations instead* and type part of a name or code.
 
 Repeat to add more stations.
 
@@ -63,7 +64,7 @@ For NOAA *subordinate* stations, NOAA only publishes high and low tides; Mare dr
 *Settings → Devices & services → Mare → Configure*
 
 - **Recalculate the current level every**: how often the current level updates (default 5 minutes). Predictions themselves are downloaded once an hour.
-- **Change station**: runs the same source → map → nearest stations → search steps. Your entity IDs stay the same, so cards and automations keep working.
+- **Change station**: runs the same country → source → map → nearest stations → search steps. Your entity IDs stay the same, so cards and automations keep working.
 
 ### 4. Install the card
 
@@ -105,10 +106,11 @@ hours: 48
 ### 2. Ajouter une station de marée
 
 1. *Paramètres → Appareils et services → Ajouter une intégration* → cherchez **Mare**.
-2. Choisissez la source : **Canada** (Pêches et Océans Canada, MPO), **États-Unis** (NOAA), **Royaume-Uni** (ADMIRALTY, clé d’API gratuite requise), **Norvège** (Kartverket), **Pays-Bas** (Rijkswaterstaat) ou **Irlande** (Marine Institute). Par défaut, c’est le pays configuré dans Home Assistant.
-   - **Royaume-Uni seulement :** collez votre clé d’API ADMIRALTY. Obtenez-la sur le [portail des développeurs ADMIRALTY](https://admiraltyapi.portal.azure-api.net/) en vous abonnant à *UK Tidal API - Discovery* (gratuit). Quand la clé expire, Home Assistant affiche un avis *Reconfigurer* dans *Paramètres → Appareils et services* pour en demander une nouvelle.
-3. La carte s’ouvre sur l’emplacement de votre domicile. Gardez-le, ou déplacez l’épingle pour chercher des stations ailleurs, puis soumettez.
-4. Choisissez l’une des **5 stations les plus proches** (chacune affiche son code et sa distance), ou cochez *Rechercher parmi toutes les stations* et tapez une partie d’un nom ou d’un code.
+2. Choisissez votre pays. Par défaut, c’est le pays configuré dans Home Assistant.
+3. L’étape suivante indique la source des prédictions : **Canada** : Pêches et Océans Canada (MPO); **États-Unis** et leurs territoires, et **Mexique** : NOAA; **Royaume-Uni**, île de Man, Jersey et Guernesey : ADMIRALTY (clé d’API gratuite requise); **Norvège** : Kartverket; **Pays-Bas** : Rijkswaterstaat; **Irlande** : Marine Institute. Soumettez pour continuer.
+   - **Royaume-Uni seulement :** à l’étape suivante, collez votre clé d’API ADMIRALTY. Obtenez-la sur le [portail des développeurs ADMIRALTY](https://admiraltyapi.portal.azure-api.net/) en vous abonnant à *UK Tidal API - Discovery* (gratuit). Quand la clé expire, Home Assistant affiche un avis *Reconfigurer* dans *Paramètres → Appareils et services* pour en demander une nouvelle.
+4. La carte s’ouvre sur l’emplacement de votre domicile. Gardez-le, ou déplacez l’épingle pour chercher des stations ailleurs, puis soumettez.
+5. Choisissez l’une des **5 stations les plus proches** (chacune affiche son code et sa distance), ou cochez *Rechercher parmi toutes les stations* et tapez une partie d’un nom ou d’un code.
 
 Recommencez pour ajouter d’autres stations.
 
@@ -127,7 +129,7 @@ Pour les stations *secondaires* de la NOAA, seules les marées hautes et basses 
 *Paramètres → Appareils et services → Mare → Configurer*
 
 - **Recalculer le niveau actuel toutes les** : fréquence de mise à jour du niveau actuel (5 minutes par défaut). Les prédictions sont téléchargées une fois par heure.
-- **Changer de station** : reprend les étapes source → carte → stations les plus proches → recherche. Vos identifiants d’entité ne changent pas : vos cartes et automatisations continuent de fonctionner.
+- **Changer de station** : reprend les étapes pays → source → carte → stations les plus proches → recherche. Vos identifiants d’entité ne changent pas : vos cartes et automatisations continuent de fonctionner.
 
 ### 4. Installer la carte
 

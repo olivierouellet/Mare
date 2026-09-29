@@ -1,6 +1,6 @@
 {
   "name": "Mare",
-  "country": ["CA", "US", "GB", "NO", "NL", "IE"],
+  "country": ["CA", "US", "MX", "GB", "NO", "NL", "IE"],
   "render_readme": true,
   "homeassistant": "2025.1.0"
 }
