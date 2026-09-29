@@ -9,7 +9,7 @@ CONF_STATION_CODE = "station_code"
 CONF_STATION_NAME = "station_name"
 CONF_LATITUDE = "latitude"
 CONF_LONGITUDE = "longitude"
-CONF_SUBORDINATE = "subordinate"
+CONF_HILO_ONLY = "hilo_only"
 CONF_UPDATE_INTERVAL = "update_interval"
 
 DEFAULT_UPDATE_INTERVAL = 300  # seconds between state recalculations

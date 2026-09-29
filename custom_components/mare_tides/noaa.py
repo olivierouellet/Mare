@@ -2,38 +2,25 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from typing import Any
 
-import aiohttp
-
-from .api import TIMEOUT, Station, TideApiError, TideData, cosine_curve
+from .api import Station, TideApiError, TideClient
 
 STATIONS_URL = "https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations.json"
 DATA_URL = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter"
 
-# Subordinate stations only publish highs and lows. Fetching a day either side makes
-# sure the curve has a high or low before the start and after the end of the window.
-SUBORDINATE_MARGIN = timedelta(days=1)
-
 KINDS = {"H": "high", "HH": "high", "L": "low", "LL": "low"}
 
 
-class NoaaClient:
-    """Minimal async client for the endpoints this integration needs."""
+class NoaaClient(TideClient):
+    """Minimal async client for the endpoints this integration needs.
 
-    def __init__(self, session: aiohttp.ClientSession) -> None:
-        self._session = session
+    Subordinate stations only publish highs and lows, so they are flagged `hilo_only`.
+    """
 
     async def _get(self, url: str, params: dict[str, str]) -> dict[str, Any]:
-        try:
-            async with self._session.get(url, params=params, timeout=TIMEOUT) as resp:
-                if resp.status != 200:
-                    raise TideApiError(f"HTTP {resp.status} for {url}")
-                payload = await resp.json(content_type=None)
-        except (aiohttp.ClientError, asyncio.TimeoutError, ValueError) as err:
-            raise TideApiError(f"Error requesting {url}: {err}") from err
-
+        payload = await self._get_json(url, params)
         if not isinstance(payload, dict):
             raise TideApiError(f"Unexpected response format for {url}")
         # Errors come back with HTTP 200 and an "error" object.
@@ -60,36 +47,26 @@ class NoaaClient:
                         longitude=float(item["lng"]),
                         operating=True,
                         provider="noaa",
-                        subordinate=item.get("type") == "S",
+                        hilo_only=item.get("type") == "S",
                     )
                 )
             except (KeyError, TypeError, ValueError, AttributeError):
                 continue
         return stations
 
-    async def async_get_tides(
-        self, station_id: str, start: datetime, end: datetime, subordinate: bool = False
-    ) -> TideData:
-        """Fetch 15-minute predictions and official high/low points between start and end.
+    async def _async_get_predictions(
+        self, station_id: str, start: datetime, end: datetime
+    ) -> tuple[list[tuple[datetime, float]], list[tuple[datetime, float, str]]]:
+        raw_points, raw_hilo = await asyncio.gather(
+            self._predictions(station_id, start, end, "15"),
+            self._predictions(station_id, start, end, "hilo"),
+        )
+        return _parse_points(raw_points), _parse_extremes(raw_hilo)
 
-        Subordinate stations have no 15-minute predictions: their curve is drawn
-        through their highs and lows.
-        """
-        if subordinate:
-            raw = await self._predictions(station_id, start - SUBORDINATE_MARGIN, end + SUBORDINATE_MARGIN, "hilo")
-            extremes = _parse_extremes(raw)
-            points = cosine_curve(extremes, start, end)
-            extremes = [e for e in extremes if start <= e[0] <= end]
-        else:
-            raw_points, raw_hilo = await asyncio.gather(
-                self._predictions(station_id, start, end, "15"),
-                self._predictions(station_id, start, end, "hilo"),
-            )
-            points = _parse_points(raw_points)
-            extremes = _parse_extremes(raw_hilo)
-        if not points:
-            raise TideApiError(f"No predictions returned for station {station_id}")
-        return TideData(points=points, extremes=extremes, start=start, end=end)
+    async def _async_get_extremes(
+        self, station_id: str, start: datetime, end: datetime
+    ) -> list[tuple[datetime, float, str]]:
+        return _parse_extremes(await self._predictions(station_id, start, end, "hilo"))
 
     async def _predictions(self, station_id: str, start: datetime, end: datetime, interval: str) -> list[dict[str, Any]]:
         payload = await self._get(

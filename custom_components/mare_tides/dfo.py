@@ -5,9 +5,7 @@ import asyncio
 from datetime import datetime, timedelta
 from typing import Any
 
-import aiohttp
-
-from .api import TIMEOUT, Station, TideApiError, TideData, format_utc, interpolate, parse_time
+from .api import Station, TideApiError, TideClient, format_utc, interpolate, parse_time
 
 BASE_URL = "https://api-iwls.dfo-mpo.gc.ca/api/v1"
 
@@ -15,21 +13,11 @@ SERIES_PREDICTIONS = "wlp"
 SERIES_HILO = "wlp-hilo"
 
 
-class DfoClient:
+class DfoClient(TideClient):
     """Minimal async client for the endpoints this integration needs."""
 
-    def __init__(self, session: aiohttp.ClientSession) -> None:
-        self._session = session
-
     async def _get(self, path: str, params: dict[str, str] | None = None) -> list[dict[str, Any]]:
-        try:
-            async with self._session.get(f"{BASE_URL}{path}", params=params, timeout=TIMEOUT) as resp:
-                if resp.status != 200:
-                    raise TideApiError(f"HTTP {resp.status} for {path}")
-                payload = await resp.json()
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise TideApiError(f"Error requesting {path}: {err}") from err
-
+        payload = await self._get_json(f"{BASE_URL}{path}", params)
         # The API returns a bare list; older docs show a {"data": [...]} wrapper.
         if isinstance(payload, dict):
             payload = payload.get("data")
@@ -61,9 +49,9 @@ class DfoClient:
                 continue
         return stations
 
-    async def async_get_tides(
-        self, station_id: str, start: datetime, end: datetime, subordinate: bool = False
-    ) -> TideData:
+    async def _async_get_predictions(
+        self, station_id: str, start: datetime, end: datetime
+    ) -> tuple[list[tuple[datetime, float]], list[tuple[datetime, float, str]]]:
         """Fetch 15-minute predictions and official high/low points between start and end."""
         common = {"from": format_utc(start), "to": format_utc(end)}
         raw_points, raw_hilo = await asyncio.gather(
@@ -74,10 +62,7 @@ class DfoClient:
             self._get(f"/stations/{station_id}/data", {**common, "time-series-code": SERIES_HILO}),
         )
         points = _parse_series(raw_points)
-        if not points:
-            raise TideApiError(f"No predictions returned for station {station_id}")
-        hilo = _parse_series(raw_hilo)
-        return TideData(points=points, extremes=classify_extremes(hilo, points), start=start, end=end)
+        return points, classify_extremes(_parse_series(raw_hilo), points)
 
 
 def _parse_series(raw: list[dict[str, Any]]) -> list[tuple[datetime, float]]:

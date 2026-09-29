@@ -83,6 +83,7 @@ The YAML `platform: dfo_tides` sensor is no longer imported; add the station fro
 
 - Integration tests: `pytest` (needs `pytest-homeassistant-custom-component`, Python 3.13). They use recorded DFO and NOAA responses in `tests/fixtures`.
 - The card lives in its own repository: [olivierouellet/Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card).
+- **Adding a country:** write a client that subclasses `TideClient` in `api.py` (implement `async_get_stations` and `_async_get_predictions`, plus `_async_get_extremes` if some stations only publish highs and lows), register it in `PROVIDERS` in `providers.py` with its countries, and add its label under `selector.provider` in `strings.json` and each translation. A test checks that every provider has a label in every language.
 - The integration icon lives in `custom_components/mare_tides/brand/` (Home Assistant 2026.3 or later shows it automatically). Its source is `assets/icon.svg`; after editing it, export `icon@2x.png` at 512×512 and `icon.png` at 256×256.
 
 Data: Fisheries and Oceans Canada, [Integrated Water Level System API](https://api-iwls.dfo-mpo.gc.ca/); NOAA Center for Operational Oceanographic Products and Services, [Tides and Currents](https://tidesandcurrents.noaa.gov/). Predictions are not for navigation.
@@ -156,6 +157,7 @@ Le capteur YAML `platform: dfo_tides` n’est plus importé; ajoutez plutôt la 
 
 - Tests de l’intégration : `pytest` (requiert `pytest-homeassistant-custom-component`, Python 3.13). Ils utilisent des réponses de MPO et de la NOAA enregistrées dans `tests/fixtures`.
 - La carte a son propre dépôt : [olivierouellet/Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card#français).
+- **Ajouter un pays :** écrivez un client qui hérite de `TideClient` dans `api.py` (implémentez `async_get_stations` et `_async_get_predictions`, ainsi que `_async_get_extremes` si certaines stations ne publient que les marées hautes et basses), inscrivez-le dans `PROVIDERS` de `providers.py` avec ses pays, et ajoutez son libellé sous `selector.provider` dans `strings.json` et chaque traduction. Un test vérifie que chaque source a un libellé dans chaque langue.
 - L’icône de l’intégration se trouve dans `custom_components/mare_tides/brand/` (Home Assistant 2026.3 ou plus récent l’affiche automatiquement). Sa source est `assets/icon.svg`; après une modification, exportez `icon@2x.png` en 512×512 et `icon.png` en 256×256.
 
 Données : Pêches et Océans Canada, [API du Système intégré des niveaux d’eau](https://api-iwls.dfo-mpo.gc.ca/); NOAA Center for Operational Oceanographic Products and Services, [Tides and Currents](https://tidesandcurrents.noaa.gov/). Les prédictions ne doivent pas servir à la navigation.

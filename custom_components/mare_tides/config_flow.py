@@ -27,13 +27,13 @@ from homeassistant.helpers.selector import (
 
 from .api import Station, TideApiError, nearest, search, station_label
 from .const import (
+    CONF_HILO_ONLY,
     CONF_LATITUDE,
     CONF_LONGITUDE,
     CONF_PROVIDER,
     CONF_STATION_CODE,
     CONF_STATION_ID,
     CONF_STATION_NAME,
-    CONF_SUBORDINATE,
     CONF_UPDATE_INTERVAL,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
@@ -42,7 +42,7 @@ from .const import (
     NEAREST_COUNT,
     SEARCH_LIMIT,
 )
-from .providers import PROVIDERS
+from .providers import PROVIDERS, provider_for_country
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ def station_data(station: Station) -> dict[str, Any]:
         CONF_STATION_NAME: station.name,
         CONF_LATITUDE: station.latitude,
         CONF_LONGITUDE: station.longitude,
-        CONF_SUBORDINATE: station.subordinate,
+        CONF_HILO_ONLY: station.hilo_only,
     }
 
 
@@ -102,7 +102,7 @@ class StationPickerMixin:
         raise NotImplementedError
 
     def _default_provider(self) -> str:
-        return "noaa" if self.hass.config.country == "US" else "dfo"
+        return provider_for_country(self.hass.config.country)
 
     async def _async_load_stations(self) -> str | None:
         """Load the chosen provider's station list; returns an error key on failure."""

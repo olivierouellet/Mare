@@ -19,13 +19,13 @@ from homeassistant.util import dt as dt_util
 
 from .api import interpolate
 from .const import (
+    CONF_HILO_ONLY,
     CONF_LATITUDE,
     CONF_LONGITUDE,
     CONF_PROVIDER,
     CONF_STATION_CODE,
     CONF_STATION_ID,
     CONF_STATION_NAME,
-    CONF_SUBORDINATE,
     CONF_UPDATE_INTERVAL,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
@@ -112,8 +112,8 @@ class TideLevelSensor(MareTidesEntity, SensorEntity):
             "latitude": entry.data.get(CONF_LATITUDE),
             "longitude": entry.data.get(CONF_LONGITUDE),
             "provider": entry.data.get(CONF_PROVIDER),
-            # True when the curve is drawn through the highs and lows (subordinate stations).
-            "interpolated": entry.data.get(CONF_SUBORDINATE, False),
+            # True when the curve is drawn through the highs and lows (stations with highs and lows only).
+            "interpolated": entry.data.get(CONF_HILO_ONLY, False),
         }
         if data is None:
             return attrs

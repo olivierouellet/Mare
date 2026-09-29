@@ -12,9 +12,9 @@ from homeassistant.util import dt as dt_util
 
 from .api import TideApiError, TideData
 from .const import (
+    CONF_HILO_ONLY,
     CONF_PROVIDER,
     CONF_STATION_ID,
-    CONF_SUBORDINATE,
     DOMAIN,
     FETCH_INTERVAL,
     WINDOW_DAYS_AFTER,
@@ -43,13 +43,13 @@ class MareTidesCoordinator(DataUpdateCoordinator[TideData]):
         self.provider = PROVIDERS[entry.data[CONF_PROVIDER]]
         self.client = self.provider.client(async_get_clientsession(hass))
         self.station_id: str = entry.data[CONF_STATION_ID]
-        self.subordinate: bool = entry.data.get(CONF_SUBORDINATE, False)
+        self.hilo_only: bool = entry.data.get(CONF_HILO_ONLY, False)
 
     async def _async_update_data(self) -> TideData:
         midnight = dt_util.start_of_local_day()
         start = midnight - timedelta(days=WINDOW_DAYS_BEFORE)
         end = midnight + timedelta(days=WINDOW_DAYS_AFTER)
         try:
-            return await self.client.async_get_tides(self.station_id, start, end, self.subordinate)
+            return await self.client.async_get_tides(self.station_id, start, end, self.hilo_only)
         except TideApiError as err:
             raise UpdateFailed(str(err)) from err

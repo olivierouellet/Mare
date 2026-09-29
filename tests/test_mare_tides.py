@@ -1,8 +1,10 @@
 """Tests for the Mare integration: flows, sensors and the NOAA client."""
 from __future__ import annotations
 
+import json
 import re
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 
@@ -12,8 +14,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
 
-from custom_components.mare_tides.api import cosine_curve
+from custom_components.mare_tides.api import TideClient, cosine_curve
 from custom_components.mare_tides.const import DOMAIN
+from custom_components.mare_tides.providers import PROVIDERS, provider_for_country
 
 from .conftest import BEDFORD_ID, BOSTON_ID, HALIFAX_ID, HULL_ID, NOW, SANDY_BEACH_ID
 
@@ -190,7 +193,7 @@ async def test_noaa_subordinate_station(boston_home, noaa_api) -> None:
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"query": "hull"})
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"query": "hull", "station": HULL_ID})
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["result"].data["subordinate"] is True
+    assert result["result"].data["hilo_only"] is True
     await hass.async_block_till_done()
 
     level = hass.states.get("sensor.hull_ma_tide_level")
@@ -225,3 +228,21 @@ def test_cosine_curve() -> None:
     assert curve[t0 + timedelta(hours=6)] == pytest.approx(0.0)
     assert curve[t0 + timedelta(hours=9)] == pytest.approx(0.5)
     assert curve[t0 + timedelta(hours=12)] == pytest.approx(1.0)
+
+
+def test_every_provider_is_complete() -> None:
+    """A new provider needs a client, its countries and a label in every language."""
+    component = Path(__file__).parent.parent / "custom_components" / DOMAIN
+    for name in ("strings.json", "translations/en.json", "translations/fr.json"):
+        options = json.loads((component / name).read_text())["selector"]["provider"]["options"]
+        assert set(options) == set(PROVIDERS), name
+    for provider in PROVIDERS.values():
+        assert issubclass(provider.client, TideClient)
+        assert provider.countries
+
+
+def test_provider_for_country() -> None:
+    assert provider_for_country("CA") == "dfo"
+    assert provider_for_country("US") == "noaa"
+    assert provider_for_country("PR") == "noaa"
+    assert provider_for_country(None) == "dfo"

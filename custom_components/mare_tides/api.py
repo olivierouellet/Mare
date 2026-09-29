@@ -4,15 +4,21 @@ Kept free of Home Assistant imports so it can be exercised on its own.
 """
 from __future__ import annotations
 
+import asyncio
 import math
 import unicodedata
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from typing import Protocol
+from typing import Any
 
 import aiohttp
 
 TIMEOUT = aiohttp.ClientTimeout(total=30)
+
+# Stations with highs and lows only: fetching a day either side makes sure the curve
+# has a high or low before the start and after the end of the window.
+HILO_MARGIN = timedelta(days=1)
 
 
 class TideApiError(Exception):
@@ -30,8 +36,8 @@ class Station:
     longitude: float
     operating: bool
     provider: str
-    # Subordinate stations only publish highs and lows; their curve is interpolated.
-    subordinate: bool = False
+    # Some stations only publish highs and lows; their curve is drawn through them.
+    hilo_only: bool = False
 
 
 @dataclass
@@ -44,16 +50,55 @@ class TideData:
     end: datetime | None = None
 
 
-class TideClient(Protocol):
-    """What every provider client offers."""
+class TideClient(ABC):
+    """Base class for provider clients.
 
-    def __init__(self, session: aiohttp.ClientSession) -> None: ...
+    A provider implements `async_get_stations` and `_async_get_predictions`, plus
+    `_async_get_extremes` if some of its stations only publish highs and lows.
+    """
 
-    async def async_get_stations(self) -> list[Station]: ...
+    def __init__(self, session: aiohttp.ClientSession) -> None:
+        self._session = session
+
+    async def _get_json(self, url: str, params: dict[str, str] | None = None) -> Any:
+        """GET a JSON document; network errors and non-200 answers raise TideApiError."""
+        try:
+            async with self._session.get(url, params=params, timeout=TIMEOUT) as resp:
+                if resp.status != 200:
+                    raise TideApiError(f"HTTP {resp.status} for {url}")
+                return await resp.json(content_type=None)
+        except (aiohttp.ClientError, asyncio.TimeoutError, ValueError) as err:
+            raise TideApiError(f"Error requesting {url}: {err}") from err
+
+    @abstractmethod
+    async def async_get_stations(self) -> list[Station]:
+        """All stations that publish tide predictions."""
+
+    @abstractmethod
+    async def _async_get_predictions(
+        self, station_id: str, start: datetime, end: datetime
+    ) -> tuple[list[tuple[datetime, float]], list[tuple[datetime, float, str]]]:
+        """The 15-minute curve and the labelled highs and lows between start and end."""
+
+    async def _async_get_extremes(
+        self, station_id: str, start: datetime, end: datetime
+    ) -> list[tuple[datetime, float, str]]:
+        """Labelled highs and lows between start and end, for stations without a curve."""
+        raise NotImplementedError
 
     async def async_get_tides(
-        self, station_id: str, start: datetime, end: datetime, subordinate: bool = False
-    ) -> TideData: ...
+        self, station_id: str, start: datetime, end: datetime, hilo_only: bool = False
+    ) -> TideData:
+        """Predictions for one station; a curve is drawn for stations with highs and lows only."""
+        if hilo_only:
+            extremes = await self._async_get_extremes(station_id, start - HILO_MARGIN, end + HILO_MARGIN)
+            points = cosine_curve(extremes, start, end)
+            extremes = [e for e in extremes if start <= e[0] <= end]
+        else:
+            points, extremes = await self._async_get_predictions(station_id, start, end)
+        if not points:
+            raise TideApiError(f"No predictions returned for station {station_id}")
+        return TideData(points=points, extremes=extremes, start=start, end=end)
 
 
 def parse_time(value: str) -> datetime:
