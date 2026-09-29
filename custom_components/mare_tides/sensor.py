@@ -4,23 +4,16 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
-import voluptuous as vol
-
 from homeassistant.components.sensor import (
-    PLATFORM_SCHEMA as SENSOR_PLATFORM_SCHEMA,
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
-from homeassistant.config_entries import SOURCE_IMPORT
-from homeassistant.const import CONF_NAME, UnitOfLength
+from homeassistant.const import UnitOfLength
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.data_entry_flow import FlowResultType
-from homeassistant.helpers import config_validation as cv, issue_registry as ir
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
@@ -28,58 +21,15 @@ from .api import interpolate
 from .const import (
     ATTRIBUTION,
     CONF_LATITUDE,
-    CONF_LEGACY_OBJECT_ID,
     CONF_LONGITUDE,
     CONF_STATION_CODE,
     CONF_STATION_ID,
     CONF_STATION_NAME,
-    CONF_TIME_SERIES_CODE,
     CONF_UPDATE_INTERVAL,
     DEFAULT_UPDATE_INTERVAL,
     DOMAIN,
 )
 from .coordinator import DfoTidesConfigEntry, DfoTidesCoordinator
-
-# Legacy YAML platform, kept only to import it into a config entry.
-PLATFORM_SCHEMA = SENSOR_PLATFORM_SCHEMA.extend(
-    {
-        vol.Required(CONF_STATION_ID): cv.string,
-        vol.Optional(CONF_NAME): cv.string,
-        vol.Optional(CONF_TIME_SERIES_CODE): cv.string,
-        vol.Optional(CONF_UPDATE_INTERVAL): cv.positive_int,
-    }
-)
-
-
-async def async_setup_platform(
-    hass: HomeAssistant,
-    config: ConfigType,
-    async_add_entities: AddEntitiesCallback,
-    discovery_info: DiscoveryInfoType | None = None,
-) -> None:
-    """Import a YAML `platform: dfo_tides` sensor into a config entry."""
-    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": SOURCE_IMPORT}, data=dict(config))
-    if result["type"] is FlowResultType.ABORT and result["reason"] not in ("already_configured", "single_instance"):
-        issue_id = f"yaml_import_failed_{config[CONF_STATION_ID]}"
-        ir.async_create_issue(
-            hass,
-            DOMAIN,
-            issue_id,
-            is_fixable=False,
-            severity=ir.IssueSeverity.ERROR,
-            translation_key="yaml_import_failed",
-            translation_placeholders={"station_id": config[CONF_STATION_ID]},
-        )
-        return
-    ir.async_create_issue(
-        hass,
-        DOMAIN,
-        "deprecated_yaml",
-        is_fixable=False,
-        severity=ir.IssueSeverity.WARNING,
-        translation_key="deprecated_yaml",
-    )
-
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: DfoTidesConfigEntry, async_add_entities: AddEntitiesCallback
@@ -140,9 +90,6 @@ class TideLevelSensor(DfoTidesEntity, SensorEntity):
 
     def __init__(self, coordinator: DfoTidesCoordinator) -> None:
         super().__init__(coordinator, "tide_level")
-        if legacy := coordinator.config_entry.data.get(CONF_LEGACY_OBJECT_ID):
-            # Keep the entity ID the YAML sensor had, so existing cards keep working.
-            self.entity_id = f"sensor.{legacy}"
 
     @property
     def native_value(self) -> float | None:

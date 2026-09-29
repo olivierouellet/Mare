@@ -32,8 +32,7 @@
     },
     "abort": {
       "already_configured": "Cette station est déjà configurée.",
-      "cannot_connect": "Impossible de joindre l'API de MPO.",
-      "unknown_station": "La station de votre configuration YAML est introuvable dans la liste des stations de MPO."
+      "cannot_connect": "Impossible de joindre l'API de MPO."
     }
   },
   "options": {
@@ -103,16 +102,6 @@
           }
         }
       }
-    }
-  },
-  "issues": {
-    "deprecated_yaml": {
-      "title": "La configuration YAML de Mare est obsolète",
-      "description": "Votre capteur `dfo_tides` a été importé dans l'interface. Retirez l'entrée `platform: dfo_tides` de `configuration.yaml` et redémarrez Home Assistant. Vous pouvez maintenant changer de station dans Paramètres → Appareils et services → Mare → Configurer."
-    },
-    "yaml_import_failed": {
-      "title": "Échec de l'importation YAML de Mare",
-      "description": "La station `{station_id}` de `configuration.yaml` n'a pas pu être importée. Retirez l'entrée `platform: dfo_tides` et ajoutez plutôt l'intégration depuis Paramètres → Appareils et services."
     }
   }
 }

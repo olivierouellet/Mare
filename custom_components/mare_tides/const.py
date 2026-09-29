@@ -1,7 +1,7 @@
 """Constants for the DFO Tides integration."""
 from datetime import timedelta
 
-DOMAIN = "dfo_tides"
+DOMAIN = "mare_tides"
 
 CONF_STATION_ID = "station_id"
 CONF_STATION_CODE = "station_code"
@@ -9,10 +9,6 @@ CONF_STATION_NAME = "station_name"
 CONF_LATITUDE = "latitude"
 CONF_LONGITUDE = "longitude"
 CONF_UPDATE_INTERVAL = "update_interval"
-CONF_LEGACY_OBJECT_ID = "legacy_object_id"
-
-# Legacy YAML keys (sensor platform)
-CONF_TIME_SERIES_CODE = "time_series_code"
 
 DEFAULT_UPDATE_INTERVAL = 300  # seconds between state recalculations
 MIN_UPDATE_INTERVAL = 60

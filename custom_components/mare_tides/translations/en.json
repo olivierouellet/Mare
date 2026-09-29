@@ -32,8 +32,7 @@
     },
     "abort": {
       "already_configured": "This station is already set up.",
-      "cannot_connect": "Could not reach the DFO API.",
-      "unknown_station": "The station in your YAML configuration was not found in the DFO station list."
+      "cannot_connect": "Could not reach the DFO API."
     }
   },
   "options": {
@@ -103,16 +102,6 @@
           }
         }
       }
-    }
-  },
-  "issues": {
-    "deprecated_yaml": {
-      "title": "Mare YAML configuration is deprecated",
-      "description": "Your `dfo_tides` sensor has been imported into the UI. Remove the `platform: dfo_tides` entry from `configuration.yaml` and restart Home Assistant. You can now change the station under Settings → Devices & services → Mare → Configure."
-    },
-    "yaml_import_failed": {
-      "title": "Mare YAML import failed",
-      "description": "Station `{station_id}` from `configuration.yaml` could not be imported. Remove the `platform: dfo_tides` entry and add the integration from Settings → Devices & services instead."
     }
   }
 }

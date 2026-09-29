@@ -1,4 +1,4 @@
-"""Tests for the DFO Tides integration: flows, YAML import and sensors."""
+"""Tests for the Mare integration: flows and sensors."""
 from __future__ import annotations
 
 import pytest
@@ -8,9 +8,8 @@ from homeassistant.const import CONF_LOCATION
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
-from homeassistant.setup import async_setup_component
 
-from custom_components.dfo_tides.const import DOMAIN
+from custom_components.mare_tides.const import DOMAIN
 
 from .conftest import BEDFORD_ID, HALIFAX_ID, NOW, SANDY_BEACH_ID
 
@@ -126,21 +125,3 @@ async def test_options_flow_changes_station_keeps_entity_ids(halifax_home, dfo_a
     after = {e.unique_id: e.entity_id for e in er.async_entries_for_config_entry(registry, entry.entry_id)}
     assert after == before
     assert hass.states.get("sensor.halifax_tide_level").attributes["station_name"] == "Bedford Institute"
-
-
-@pytest.mark.freeze_time(NOW)
-async def test_yaml_import_keeps_entity_id(halifax_home, dfo_api) -> None:
-    hass = halifax_home
-    assert await async_setup_component(
-        hass,
-        "sensor",
-        {"sensor": [{"platform": DOMAIN, "name": "Halifax Tides", "station_id": SANDY_BEACH_ID, "update_interval": 300}]},
-    )
-    await hass.async_block_till_done()
-
-    entries = hass.config_entries.async_entries(DOMAIN)
-    assert len(entries) == 1
-    assert entries[0].unique_id == SANDY_BEACH_ID
-    assert entries[0].title == "Halifax Tides"
-    assert hass.states.get("sensor.halifax_tides") is not None
-    assert hass.states.get("sensor.halifax_tides_next_high_tide") is not None

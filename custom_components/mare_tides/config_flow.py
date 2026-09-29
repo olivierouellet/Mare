@@ -8,7 +8,7 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow
-from homeassistant.const import CONF_LOCATION, CONF_NAME
+from homeassistant.const import CONF_LOCATION
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
@@ -24,12 +24,10 @@ from homeassistant.helpers.selector import (
     SelectSelectorMode,
     TextSelector,
 )
-from homeassistant.util import slugify
 
 from .api import DfoApiError, DfoClient, Station, nearest, search, station_label
 from .const import (
     CONF_LATITUDE,
-    CONF_LEGACY_OBJECT_ID,
     CONF_LONGITUDE,
     CONF_STATION_CODE,
     CONF_STATION_ID,
@@ -176,26 +174,6 @@ class DfoTidesConfigFlow(StationPickerMixin, ConfigFlow, domain=DOMAIN):
         self._abort_if_unique_id_configured()
         return self.async_create_entry(title=station.name, data=station_data(station))
 
-    async def async_step_import(self, import_data: dict[str, Any]) -> ConfigFlowResult:
-        """Import a legacy YAML sensor."""
-        station_id = import_data[CONF_STATION_ID]
-        await self.async_set_unique_id(station_id)
-        self._abort_if_unique_id_configured()
-        if await self._async_load_stations() is not None:
-            return self.async_abort(reason="cannot_connect")
-        station = next((s for s in self._stations if s.id == station_id), None)
-        if station is None:
-            return self.async_abort(reason="unknown_station")
-        data = station_data(station)
-        # The YAML sensor's entity ID was derived from its name (default "DFO Tides").
-        data[CONF_LEGACY_OBJECT_ID] = slugify(import_data.get(CONF_NAME) or "DFO Tides")
-        options = {}
-        if interval := import_data.get(CONF_UPDATE_INTERVAL):
-            options[CONF_UPDATE_INTERVAL] = min(max(interval, MIN_UPDATE_INTERVAL), MAX_UPDATE_INTERVAL)
-        return self.async_create_entry(
-            title=import_data.get(CONF_NAME) or station.name, data=data, options=options
-        )
-
     @staticmethod
     @callback
     def async_get_options_flow(config_entry) -> DfoTidesOptionsFlow:
@@ -245,8 +223,8 @@ class DfoTidesOptionsFlow(StationPickerMixin, OptionsFlow):
             for other in self.hass.config_entries.async_entries(DOMAIN):
                 if other.entry_id != entry.entry_id and other.unique_id == station.id:
                     return self.async_abort(reason="already_configured")
-        # Keep the legacy entity ID and a custom (imported) title across station changes.
-        data = {**station_data(station), **{k: v for k, v in entry.data.items() if k == CONF_LEGACY_OBJECT_ID}}
+        # Keep a custom title across station changes.
+        data = station_data(station)
         title = station.name if entry.title == entry.data.get(CONF_STATION_NAME) else entry.title
         # One update (and one reload); returning the same options below changes nothing more.
         self.hass.config_entries.async_update_entry(
