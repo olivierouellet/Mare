@@ -146,16 +146,17 @@ class StationPickerMixin:
     async def async_step_country(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Choose the country; the next step shows where its predictions come from."""
         if user_input is not None:
-            self._country = user_input[CONF_COUNTRY]
+            self._country = user_input[CONF_COUNTRY].upper()
             return await self.async_step_source()
 
         return self.async_show_form(  # type: ignore[attr-defined]
             step_id="country",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_COUNTRY, default=self._default_country()): SelectSelector(
+                    # Options are lower-case: Home Assistant translation keys must be.
+                    vol.Required(CONF_COUNTRY, default=self._default_country().lower()): SelectSelector(
                         SelectSelectorConfig(
-                            options=list(COUNTRIES),
+                            options=[c.lower() for c in COUNTRIES],
                             mode=SelectSelectorMode.DROPDOWN,
                             translation_key=CONF_COUNTRY,
                             sort=True,

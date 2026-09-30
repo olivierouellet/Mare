@@ -159,22 +159,22 @@
   "selector": {
     "country": {
       "options": {
-        "CA": "Canada",
-        "US": "United States",
-        "PR": "Puerto Rico",
-        "VI": "U.S. Virgin Islands",
-        "GU": "Guam",
-        "AS": "American Samoa",
-        "MP": "Northern Mariana Islands",
-        "MX": "Mexico",
-        "NO": "Norway",
-        "SJ": "Svalbard and Jan Mayen",
-        "NL": "Netherlands",
-        "IE": "Ireland",
-        "GB": "United Kingdom",
-        "IM": "Isle of Man",
-        "JE": "Jersey",
-        "GG": "Guernsey"
+        "ca": "Canada",
+        "us": "United States",
+        "pr": "Puerto Rico",
+        "vi": "U.S. Virgin Islands",
+        "gu": "Guam",
+        "as": "American Samoa",
+        "mp": "Northern Mariana Islands",
+        "mx": "Mexico",
+        "no": "Norway",
+        "sj": "Svalbard and Jan Mayen",
+        "nl": "Netherlands",
+        "ie": "Ireland",
+        "gb": "United Kingdom",
+        "im": "Isle of Man",
+        "je": "Jersey",
+        "gg": "Guernsey"
       }
     },
     "provider": {

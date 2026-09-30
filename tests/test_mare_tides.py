@@ -31,7 +31,7 @@ async def _start(hass: HomeAssistant, provider: str = "dfo") -> dict:
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     assert result["step_id"] == "country"
     result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {"country": PROVIDERS[provider].countries[0]}
+        result["flow_id"], {"country": PROVIDERS[provider].countries[0].lower()}
     )
     assert result["step_id"] == "source"
     return await hass.config_entries.flow.async_configure(result["flow_id"], {"provider": provider})
@@ -52,8 +52,8 @@ async def test_user_flow_lists_nearest_stations(halifax_home, dfo_api) -> None:
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "country"
-    assert result["data_schema"]({})["country"] == "CA"  # Home Assistant has no country set
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"country": "CA"})
+    assert result["data_schema"]({})["country"] == "ca"  # Home Assistant has no country set
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"country": "ca"})
     assert result["step_id"] == "source"
     assert result["data_schema"].schema["provider"].config["options"] == ["dfo"]
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"provider": "dfo"})
@@ -145,8 +145,8 @@ async def test_options_flow_changes_station_keeps_entity_ids(halifax_home, dfo_a
         result["flow_id"], {"update_interval": 120, "change_station": True}
     )
     assert result["step_id"] == "country"
-    assert result["data_schema"]({})["country"] == "CA"  # the entry's country
-    result = await hass.config_entries.options.async_configure(result["flow_id"], {"country": "CA"})
+    assert result["data_schema"]({})["country"] == "ca"  # the entry's country
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {"country": "ca"})
     assert result["step_id"] == "source"
     result = await hass.config_entries.options.async_configure(result["flow_id"], {"provider": "dfo"})
     assert result["step_id"] == "location"
@@ -167,8 +167,8 @@ async def test_options_flow_changes_station_keeps_entity_ids(halifax_home, dfo_a
 async def test_noaa_reference_station(boston_home, noaa_api) -> None:
     hass = boston_home
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
-    assert result["data_schema"]({})["country"] == "US"  # Home Assistant's country
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"country": "US"})
+    assert result["data_schema"]({})["country"] == "us"  # Home Assistant's country
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"country": "us"})
     assert result["data_schema"]({})["provider"] == "noaa"
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"provider": "noaa"})
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {CONF_LOCATION: BOSTON})
@@ -251,7 +251,22 @@ def test_every_provider_is_complete() -> None:
     for name in ("strings.json", "translations/en.json", "translations/fr.json"):
         selectors = json.loads((component / name).read_text())["selector"]
         assert set(selectors["provider"]["options"]) == set(PROVIDERS), name
-        assert set(selectors["country"]["options"]) == set(COUNTRIES), name
+        assert set(selectors["country"]["options"]) == {c.lower() for c in COUNTRIES}, name
+
+
+def test_translation_keys_are_valid() -> None:
+    """hassfest only accepts lower-case keys: [a-z0-9-_]+, not starting or ending with - or _."""
+    component = Path(__file__).parent.parent / "custom_components" / DOMAIN
+
+    def keys(node):
+        if isinstance(node, dict):
+            for key, value in node.items():
+                yield key
+                yield from keys(value)
+
+    for name in ("strings.json", "translations/en.json", "translations/fr.json"):
+        bad = [k for k in keys(json.loads((component / name).read_text())) if not re.fullmatch(r"[a-z0-9]([a-z0-9-_]*[a-z0-9])?", k)]
+        assert not bad, (name, bad)
     for provider in PROVIDERS.values():
         assert issubclass(provider.client, TideClient)
         assert provider.countries
