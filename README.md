@@ -25,7 +25,7 @@ It has two parts:
 | Part | Folder | What it does |
 |---|---|---|
 | **Mare integration** (`mare_tides`) | [`custom_components/mare_tides`](custom_components/mare_tides) | Adds a tide station from the UI (nearest stations suggested) and creates sensors: current tide level, next high tide, next low tide. |
-| **Mare Tide Card** | [Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card) | A Lovelace card with the tide curve, every high/low labelled with height and time, a span of up to 72 h, and a visual editor. English and French. |
+| **Mare Tide Card** | [Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card) | A Lovelace card with the tide curve, every high/low labelled with height and time, a span of up to 72 h, and a visual editor. English, French, Spanish, Dutch and Norwegian. |
 
 The card works **with** the integration (it reads the tide level sensor) or **without** it (it downloads predictions directly from DFO for a station you pick in the card editor; Canadian stations only for now).
 
@@ -54,7 +54,7 @@ About 2,200 NOAA stations, including most Mexican ports, are *subordinate* stati
   - `sensor.<station>_tide_level`: predicted level right now (m), with `trend` (`rising`/`falling`), `provider`, `datum`, `interpolated`, the whole curve (`tide_data`) and the official high/low points (`tide_extremes`) for yesterday through the next 3 days. The two large attributes are not written to the recorder database.
   - `sensor.<station>_next_high_tide` and `sensor.<station>_next_low_tide`: timestamps, with the `height` as an attribute. Handy for automations.
 - Predictions are downloaded once an hour; the current level is recalculated every 5 minutes (configurable).
-- English and French interface.
+- Interface in English, French, Spanish (Spain and Latin America), Dutch and Norwegian Bokmål.
 
 ### Installation
 
@@ -107,7 +107,7 @@ Le projet comporte deux parties :
 | Partie | Dossier | Rôle |
 |---|---|---|
 | **Intégration Mare** (`mare_tides`) | [`custom_components/mare_tides`](custom_components/mare_tides) | Ajoute une station de marée depuis l’interface (stations les plus proches suggérées) et crée des capteurs : niveau de marée actuel, prochaine marée haute, prochaine marée basse. |
-| **Carte Mare Tide Card** | [Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card#français) | Une carte Lovelace avec la courbe de marée, chaque marée haute et basse identifiée avec sa hauteur et son heure, une plage allant jusqu’à 72 h et un éditeur visuel. En français et en anglais. |
+| **Carte Mare Tide Card** | [Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card#français) | Une carte Lovelace avec la courbe de marée, chaque marée haute et basse identifiée avec sa hauteur et son heure, une plage allant jusqu’à 72 h et un éditeur visuel. En français, anglais, espagnol, néerlandais et norvégien. |
 
 La carte fonctionne **avec** l’intégration (elle lit le capteur de niveau de marée) ou **sans** elle (elle télécharge les prédictions directement de MPO pour une station choisie dans l’éditeur de la carte; stations canadiennes seulement pour l’instant).
 
@@ -136,7 +136,7 @@ Environ 2 200 stations de la NOAA, dont la plupart des ports mexicains, sont des
   - `sensor.<station>_niveau_de_maree` (ou `_tide_level` en anglais) : niveau prédit en ce moment (m), avec `trend` (`rising`/`falling`, montante/descendante), `provider`, `datum`, `interpolated`, la courbe complète (`tide_data`) et les marées hautes et basses officielles (`tide_extremes`) d’hier jusqu’aux 3 prochains jours. Ces deux gros attributs ne sont pas enregistrés dans la base de données de l’historique.
   - Prochaine marée haute et prochaine marée basse : des horodatages, avec la hauteur (`height`) en attribut. Pratiques pour les automatisations.
 - Les prédictions sont téléchargées une fois par heure; le niveau actuel est recalculé toutes les 5 minutes (réglable).
-- Interface en français et en anglais.
+- Interface en français, anglais, espagnol (Espagne et Amérique latine), néerlandais et norvégien bokmål.
 
 ### Installation
 
