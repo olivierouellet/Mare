@@ -76,9 +76,9 @@ HACS then shows new versions as updates.
 
 More details, including changing the station and troubleshooting, are in the **[Setup Guide](Setup%20Guide.md)**.
 
-### Upgrading from 1.x
+### Upgrading from 1.0
 
-Version 2.0 renamed the integration from `dfo_tides` to `mare_tides` to make room for more countries, so existing stations must be added again:
+Version 1.1 renamed the integration from `dfo_tides` to `mare_tides` to make room for more countries, so existing stations must be added again:
 
 1. **Before updating**, delete your Mare stations under *Settings → Devices & services → Mare*. This frees their entity IDs.
 2. Update Mare in HACS and restart Home Assistant.
@@ -158,9 +158,9 @@ HACS affiche ensuite les nouvelles versions comme des mises à jour.
 
 Plus de détails, dont le changement de station et le dépannage, dans le **[guide d’installation](Setup%20Guide.md#français)**.
 
-### Mise à jour depuis la version 1.x
+### Mise à jour depuis la version 1.0
 
-La version 2.0 renomme l’intégration de `dfo_tides` à `mare_tides` pour faire place à d’autres pays; les stations existantes doivent donc être ajoutées de nouveau :
+La version 1.1 renomme l’intégration de `dfo_tides` à `mare_tides` pour faire place à d’autres pays; les stations existantes doivent donc être ajoutées de nouveau :
 
 1. **Avant la mise à jour**, supprimez vos stations Mare dans *Paramètres → Appareils et services → Mare*. Cela libère leurs identifiants d’entité.
 2. Mettez Mare à jour dans HACS et redémarrez Home Assistant.
