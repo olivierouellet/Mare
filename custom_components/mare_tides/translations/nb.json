@@ -1,0 +1,191 @@
+{
+  "config": {
+    "step": {
+      "country": {
+        "title": "Velg et land",
+        "description": "Mare bruker de offisielle tidevannsprognosene fra hvert land.",
+        "data": {
+          "country": "Land"
+        }
+      },
+      "source": {
+        "title": "Datakilde",
+        "description": "Tidevannsprognosene for dette landet kommer fra denne tjenesten.",
+        "data": {
+          "provider": "Kilde"
+        }
+      },
+      "api_key": {
+        "title": "API-nøkkel",
+        "description": "Denne tjenesten krever en gratis API-nøkkel. Opprett en på {url}, og lim den inn her.",
+        "data": {
+          "api_key": "API-nøkkel"
+        }
+      },
+      "location": {
+        "title": "Finn en tidevannsstasjon",
+        "description": "Tidevannsstasjonene sorteres etter avstand fra dette punktet. Det starter ved hjemmeposisjonen din i Home Assistant; flytt nålen for å søke et annet sted.",
+        "data": {
+          "location": "Posisjon"
+        }
+      },
+      "station": {
+        "title": "Velg en stasjon",
+        "description": "De nærmeste stasjonene som publiserer tidevannsprognoser.",
+        "data": {
+          "station": "Stasjon",
+          "search": "Søk i alle stasjoner i stedet"
+        }
+      },
+      "search": {
+        "title": "Søk etter stasjoner",
+        "description": "Skriv inn en del av navnet eller koden til en stasjon, og send inn for å se treffene (nærmeste først).",
+        "data": {
+          "query": "Navn eller kode",
+          "station": "Stasjon"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Ny API-nøkkel",
+        "description": "Tjenesten avviste API-nøkkelen for {station} (den kan ha utløpt). Skaff en ny på {url}.",
+        "data": {
+          "api_key": "API-nøkkel"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kunne ikke nå tjenesten for tidevannsprognoser. Prøv igjen senere.",
+      "no_stations": "Tjenesten for tidevannsprognoser returnerte ingen stasjoner.",
+      "no_match": "Ingen stasjoner samsvarer med dette søket.",
+      "invalid_auth": "Tjenesten avviste denne API-nøkkelen."
+    },
+    "abort": {
+      "already_configured": "Denne stasjonen er allerede satt opp.",
+      "cannot_connect": "Kunne ikke nå tjenesten for tidevannsprognoser.",
+      "reauth_successful": "API-nøkkelen er oppdatert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Alternativer for tidevannsstasjon",
+        "description": "Gjeldende stasjon: {station}",
+        "data": {
+          "update_interval": "Beregn gjeldende nivå på nytt hver",
+          "change_station": "Bytt stasjon"
+        },
+        "data_description": {
+          "update_interval": "Prognosene lastes ned én gang i timen; dette styrer bare hvor ofte gjeldende nivå oppdateres."
+        }
+      },
+      "country": {
+        "title": "Velg et land",
+        "description": "Mare bruker de offisielle tidevannsprognosene fra hvert land.",
+        "data": {
+          "country": "Land"
+        }
+      },
+      "source": {
+        "title": "Datakilde",
+        "description": "Tidevannsprognosene for dette landet kommer fra denne tjenesten.",
+        "data": {
+          "provider": "Kilde"
+        }
+      },
+      "api_key": {
+        "title": "API-nøkkel",
+        "description": "Denne tjenesten krever en gratis API-nøkkel. Opprett en på {url}, og lim den inn her.",
+        "data": {
+          "api_key": "API-nøkkel"
+        }
+      },
+      "location": {
+        "title": "Finn en tidevannsstasjon",
+        "description": "Stasjonene sorteres etter avstand fra dette punktet. Flytt nålen for å søke et annet sted.",
+        "data": {
+          "location": "Posisjon"
+        }
+      },
+      "station": {
+        "title": "Velg en stasjon",
+        "description": "De nærmeste stasjonene som publiserer tidevannsprognoser. Entitetene dine beholder ID-ene sine.",
+        "data": {
+          "station": "Stasjon",
+          "search": "Søk i alle stasjoner i stedet"
+        }
+      },
+      "search": {
+        "title": "Søk etter stasjoner",
+        "description": "Skriv inn en del av navnet eller koden til en stasjon, og send inn for å se treffene (nærmeste først).",
+        "data": {
+          "query": "Navn eller kode",
+          "station": "Stasjon"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kunne ikke nå tjenesten for tidevannsprognoser. Prøv igjen senere.",
+      "no_stations": "Tjenesten for tidevannsprognoser returnerte ingen stasjoner.",
+      "no_match": "Ingen stasjoner samsvarer med dette søket.",
+      "invalid_auth": "Tjenesten avviste denne API-nøkkelen."
+    },
+    "abort": {
+      "already_configured": "En annen oppføring bruker allerede denne stasjonen."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "tide_level": {
+        "name": "Vannstand"
+      },
+      "next_high": {
+        "name": "Neste høyvann",
+        "state_attributes": {
+          "height": {
+            "name": "Høyde"
+          }
+        }
+      },
+      "next_low": {
+        "name": "Neste lavvann",
+        "state_attributes": {
+          "height": {
+            "name": "Høyde"
+          }
+        }
+      }
+    }
+  },
+  "selector": {
+    "country": {
+      "options": {
+        "ca": "Canada",
+        "us": "USA",
+        "pr": "Puerto Rico",
+        "vi": "De amerikanske jomfruøyene",
+        "gu": "Guam",
+        "as": "Amerikansk Samoa",
+        "mp": "Nord-Marianene",
+        "mx": "Mexico",
+        "no": "Norge",
+        "sj": "Svalbard og Jan Mayen",
+        "nl": "Nederland",
+        "ie": "Irland",
+        "gb": "Storbritannia",
+        "im": "Man",
+        "je": "Jersey",
+        "gg": "Guernsey"
+      }
+    },
+    "provider": {
+      "options": {
+        "dfo": "Fisheries and Oceans Canada (DFO)",
+        "noaa": "NOAA Tides and Currents",
+        "kartverket": "Kartverket",
+        "rijkswaterstaat": "Rijkswaterstaat",
+        "marine_institute": "Marine Institute (Irland)",
+        "admiralty": "ADMIRALTY, Storbritannias sjøkartverk (krever gratis API-nøkkel)"
+      }
+    }
+  }
+}

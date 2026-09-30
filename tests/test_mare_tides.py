@@ -247,29 +247,51 @@ def test_cosine_curve() -> None:
 
 def test_every_provider_is_complete() -> None:
     """A new provider needs a client, its countries, and labels for both in every language."""
+    for file in _translation_files():
+        selectors = json.loads(file.read_text())["selector"]
+        assert set(selectors["provider"]["options"]) == set(PROVIDERS), file.name
+        assert set(selectors["country"]["options"]) == {c.lower() for c in COUNTRIES}, file.name
+    for provider in PROVIDERS.values():
+        assert issubclass(provider.client, TideClient)
+        assert provider.countries
+
+
+def _leaves(node, path=()):
+    """(path, text) for every string in a translation file."""
+    if isinstance(node, dict):
+        for key, value in node.items():
+            yield from _leaves(value, (*path, key))
+    else:
+        yield path, node
+
+
+def _translation_files() -> list[Path]:
     component = Path(__file__).parent.parent / "custom_components" / DOMAIN
-    for name in ("strings.json", "translations/en.json", "translations/fr.json"):
-        selectors = json.loads((component / name).read_text())["selector"]
-        assert set(selectors["provider"]["options"]) == set(PROVIDERS), name
-        assert set(selectors["country"]["options"]) == {c.lower() for c in COUNTRIES}, name
+    return [component / "strings.json", *sorted((component / "translations").glob("*.json"))]
 
 
 def test_translation_keys_are_valid() -> None:
     """hassfest only accepts lower-case keys: [a-z0-9-_]+, not starting or ending with - or _."""
-    component = Path(__file__).parent.parent / "custom_components" / DOMAIN
+    for file in _translation_files():
+        bad = [
+            key
+            for path, _ in _leaves(json.loads(file.read_text()))
+            for key in path
+            if not re.fullmatch(r"[a-z0-9]([a-z0-9-_]*[a-z0-9])?", key)
+        ]
+        assert not bad, (file.name, bad)
 
-    def keys(node):
-        if isinstance(node, dict):
-            for key, value in node.items():
-                yield key
-                yield from keys(value)
 
-    for name in ("strings.json", "translations/en.json", "translations/fr.json"):
-        bad = [k for k in keys(json.loads((component / name).read_text())) if not re.fullmatch(r"[a-z0-9]([a-z0-9-_]*[a-z0-9])?", k)]
-        assert not bad, (name, bad)
-    for provider in PROVIDERS.values():
-        assert issubclass(provider.client, TideClient)
-        assert provider.countries
+def test_every_language_is_complete() -> None:
+    """Each translation has exactly the keys of strings.json, with the same {placeholders}."""
+    files = _translation_files()
+    reference = dict(_leaves(json.loads(files[0].read_text())))
+    assert len(files) >= 7  # strings.json + en, fr, es, es-419, nl, nb
+    for file in files[1:]:
+        texts = dict(_leaves(json.loads(file.read_text())))
+        assert texts.keys() == reference.keys(), (file.name, texts.keys() ^ reference.keys())
+        for path, text in texts.items():
+            assert set(re.findall(r"{\w+}", text)) == set(re.findall(r"{\w+}", reference[path])), (file.name, path)
 
 
 def test_countries() -> None:

@@ -1,0 +1,191 @@
+{
+  "config": {
+    "step": {
+      "country": {
+        "title": "Kies een land",
+        "description": "Mare gebruikt de officiële getijvoorspellingen van elk land.",
+        "data": {
+          "country": "Land"
+        }
+      },
+      "source": {
+        "title": "Gegevensbron",
+        "description": "De getijvoorspellingen voor dit land komen van deze dienst.",
+        "data": {
+          "provider": "Bron"
+        }
+      },
+      "api_key": {
+        "title": "API-sleutel",
+        "description": "Deze dienst heeft een gratis API-sleutel nodig. Maak er een aan op {url} en plak die hier.",
+        "data": {
+          "api_key": "API-sleutel"
+        }
+      },
+      "location": {
+        "title": "Een getijstation zoeken",
+        "description": "Getijstations worden gesorteerd op afstand tot dit punt. Het begint bij je thuislocatie in Home Assistant; verplaats de speld om ergens anders te zoeken.",
+        "data": {
+          "location": "Locatie"
+        }
+      },
+      "station": {
+        "title": "Kies een station",
+        "description": "De dichtstbijzijnde stations die getijvoorspellingen publiceren.",
+        "data": {
+          "station": "Station",
+          "search": "In plaats daarvan alle stations doorzoeken"
+        }
+      },
+      "search": {
+        "title": "Stations zoeken",
+        "description": "Typ een deel van de naam of code van een station en verstuur om de resultaten te zien (dichtstbijzijnde eerst).",
+        "data": {
+          "query": "Naam of code",
+          "station": "Station"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Nieuwe API-sleutel",
+        "description": "De dienst heeft de API-sleutel voor {station} geweigerd (misschien is die verlopen). Vraag een nieuwe aan op {url}.",
+        "data": {
+          "api_key": "API-sleutel"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kan de getijvoorspellingsdienst niet bereiken. Probeer het later opnieuw.",
+      "no_stations": "De getijvoorspellingsdienst gaf geen stations terug.",
+      "no_match": "Geen station komt overeen met deze zoekopdracht.",
+      "invalid_auth": "De dienst heeft deze API-sleutel geweigerd."
+    },
+    "abort": {
+      "already_configured": "Dit station is al ingesteld.",
+      "cannot_connect": "Kan de getijvoorspellingsdienst niet bereiken.",
+      "reauth_successful": "De API-sleutel is bijgewerkt."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opties voor getijstation",
+        "description": "Huidig station: {station}",
+        "data": {
+          "update_interval": "Huidig niveau herberekenen elke",
+          "change_station": "Ander station kiezen"
+        },
+        "data_description": {
+          "update_interval": "Voorspellingen worden eens per uur gedownload; dit bepaalt alleen hoe vaak het huidige niveau wordt vernieuwd."
+        }
+      },
+      "country": {
+        "title": "Kies een land",
+        "description": "Mare gebruikt de officiële getijvoorspellingen van elk land.",
+        "data": {
+          "country": "Land"
+        }
+      },
+      "source": {
+        "title": "Gegevensbron",
+        "description": "De getijvoorspellingen voor dit land komen van deze dienst.",
+        "data": {
+          "provider": "Bron"
+        }
+      },
+      "api_key": {
+        "title": "API-sleutel",
+        "description": "Deze dienst heeft een gratis API-sleutel nodig. Maak er een aan op {url} en plak die hier.",
+        "data": {
+          "api_key": "API-sleutel"
+        }
+      },
+      "location": {
+        "title": "Een getijstation zoeken",
+        "description": "Stations worden gesorteerd op afstand tot dit punt. Verplaats de speld om ergens anders te zoeken.",
+        "data": {
+          "location": "Locatie"
+        }
+      },
+      "station": {
+        "title": "Kies een station",
+        "description": "De dichtstbijzijnde stations die getijvoorspellingen publiceren. Je entiteiten behouden hun ID's.",
+        "data": {
+          "station": "Station",
+          "search": "In plaats daarvan alle stations doorzoeken"
+        }
+      },
+      "search": {
+        "title": "Stations zoeken",
+        "description": "Typ een deel van de naam of code van een station en verstuur om de resultaten te zien (dichtstbijzijnde eerst).",
+        "data": {
+          "query": "Naam of code",
+          "station": "Station"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kan de getijvoorspellingsdienst niet bereiken. Probeer het later opnieuw.",
+      "no_stations": "De getijvoorspellingsdienst gaf geen stations terug.",
+      "no_match": "Geen station komt overeen met deze zoekopdracht.",
+      "invalid_auth": "De dienst heeft deze API-sleutel geweigerd."
+    },
+    "abort": {
+      "already_configured": "Een andere vermelding gebruikt dit station al."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "tide_level": {
+        "name": "Waterstand"
+      },
+      "next_high": {
+        "name": "Volgend hoogwater",
+        "state_attributes": {
+          "height": {
+            "name": "Hoogte"
+          }
+        }
+      },
+      "next_low": {
+        "name": "Volgend laagwater",
+        "state_attributes": {
+          "height": {
+            "name": "Hoogte"
+          }
+        }
+      }
+    }
+  },
+  "selector": {
+    "country": {
+      "options": {
+        "ca": "Canada",
+        "us": "Verenigde Staten",
+        "pr": "Puerto Rico",
+        "vi": "Amerikaanse Maagdeneilanden",
+        "gu": "Guam",
+        "as": "Amerikaans-Samoa",
+        "mp": "Noordelijke Marianen",
+        "mx": "Mexico",
+        "no": "Noorwegen",
+        "sj": "Svalbard en Jan Mayen",
+        "nl": "Nederland",
+        "ie": "Ierland",
+        "gb": "Verenigd Koninkrijk",
+        "im": "Isle of Man",
+        "je": "Jersey",
+        "gg": "Guernsey"
+      }
+    },
+    "provider": {
+      "options": {
+        "dfo": "Fisheries and Oceans Canada (DFO)",
+        "noaa": "NOAA Tides and Currents",
+        "kartverket": "Kartverket (Noorse kartografische dienst)",
+        "rijkswaterstaat": "Rijkswaterstaat",
+        "marine_institute": "Marine Institute (Ierland)",
+        "admiralty": "ADMIRALTY, Brits Hydrografisch Bureau (gratis API-sleutel vereist)"
+      }
+    }
+  }
+}

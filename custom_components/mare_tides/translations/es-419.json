@@ -1,0 +1,191 @@
+{
+  "config": {
+    "step": {
+      "country": {
+        "title": "Elige un país",
+        "description": "Mare usa las predicciones de marea oficiales de cada país.",
+        "data": {
+          "country": "País"
+        }
+      },
+      "source": {
+        "title": "Fuente de datos",
+        "description": "Las predicciones de marea de este país provienen de este servicio.",
+        "data": {
+          "provider": "Fuente"
+        }
+      },
+      "api_key": {
+        "title": "Clave de API",
+        "description": "Este servicio necesita una clave de API gratuita. Crea una en {url} y pégala aquí.",
+        "data": {
+          "api_key": "Clave de API"
+        }
+      },
+      "location": {
+        "title": "Buscar una estación de mareas",
+        "description": "Las estaciones de mareas se ordenan por distancia a este punto. Empieza en la ubicación de tu casa en Home Assistant; mueve el marcador para buscar en otro lugar.",
+        "data": {
+          "location": "Ubicación"
+        }
+      },
+      "station": {
+        "title": "Elige una estación",
+        "description": "Las estaciones más cercanas que publican predicciones de marea.",
+        "data": {
+          "station": "Estación",
+          "search": "Buscar entre todas las estaciones"
+        }
+      },
+      "search": {
+        "title": "Buscar estaciones",
+        "description": "Escribe parte del nombre o del código de una estación y envía para ver los resultados (primero los más cercanos).",
+        "data": {
+          "query": "Nombre o código",
+          "station": "Estación"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Nueva clave de API",
+        "description": "El servicio rechazó la clave de API de {station} (puede que haya vencido). Obtén una nueva en {url}.",
+        "data": {
+          "api_key": "Clave de API"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No se pudo conectar con el servicio de predicción de mareas. Vuelve a intentarlo más tarde.",
+      "no_stations": "El servicio de predicción de mareas no devolvió ninguna estación.",
+      "no_match": "Ninguna estación coincide con esta búsqueda.",
+      "invalid_auth": "El servicio rechazó esta clave de API."
+    },
+    "abort": {
+      "already_configured": "Esta estación ya está configurada.",
+      "cannot_connect": "No se pudo conectar con el servicio de predicción de mareas.",
+      "reauth_successful": "Se actualizó la clave de API."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opciones de la estación de mareas",
+        "description": "Estación actual: {station}",
+        "data": {
+          "update_interval": "Recalcular el nivel actual cada",
+          "change_station": "Cambiar de estación"
+        },
+        "data_description": {
+          "update_interval": "Las predicciones se descargan una vez por hora; esto solo controla con qué frecuencia se actualiza el nivel actual."
+        }
+      },
+      "country": {
+        "title": "Elige un país",
+        "description": "Mare usa las predicciones de marea oficiales de cada país.",
+        "data": {
+          "country": "País"
+        }
+      },
+      "source": {
+        "title": "Fuente de datos",
+        "description": "Las predicciones de marea de este país provienen de este servicio.",
+        "data": {
+          "provider": "Fuente"
+        }
+      },
+      "api_key": {
+        "title": "Clave de API",
+        "description": "Este servicio necesita una clave de API gratuita. Crea una en {url} y pégala aquí.",
+        "data": {
+          "api_key": "Clave de API"
+        }
+      },
+      "location": {
+        "title": "Buscar una estación de mareas",
+        "description": "Las estaciones se ordenan por distancia a este punto. Mueve el marcador para buscar en otro lugar.",
+        "data": {
+          "location": "Ubicación"
+        }
+      },
+      "station": {
+        "title": "Elige una estación",
+        "description": "Las estaciones más cercanas que publican predicciones de marea. Tus entidades conservan sus ID.",
+        "data": {
+          "station": "Estación",
+          "search": "Buscar entre todas las estaciones"
+        }
+      },
+      "search": {
+        "title": "Buscar estaciones",
+        "description": "Escribe parte del nombre o del código de una estación y envía para ver los resultados (primero los más cercanos).",
+        "data": {
+          "query": "Nombre o código",
+          "station": "Estación"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No se pudo conectar con el servicio de predicción de mareas. Vuelve a intentarlo más tarde.",
+      "no_stations": "El servicio de predicción de mareas no devolvió ninguna estación.",
+      "no_match": "Ninguna estación coincide con esta búsqueda.",
+      "invalid_auth": "El servicio rechazó esta clave de API."
+    },
+    "abort": {
+      "already_configured": "Otra entrada ya usa esta estación."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "tide_level": {
+        "name": "Nivel de la marea"
+      },
+      "next_high": {
+        "name": "Próxima marea alta",
+        "state_attributes": {
+          "height": {
+            "name": "Altura"
+          }
+        }
+      },
+      "next_low": {
+        "name": "Próxima marea baja",
+        "state_attributes": {
+          "height": {
+            "name": "Altura"
+          }
+        }
+      }
+    }
+  },
+  "selector": {
+    "country": {
+      "options": {
+        "ca": "Canadá",
+        "us": "Estados Unidos",
+        "pr": "Puerto Rico",
+        "vi": "Islas Vírgenes de los Estados Unidos",
+        "gu": "Guam",
+        "as": "Samoa Americana",
+        "mp": "Islas Marianas del Norte",
+        "mx": "México",
+        "no": "Noruega",
+        "sj": "Svalbard y Jan Mayen",
+        "nl": "Países Bajos",
+        "ie": "Irlanda",
+        "gb": "Reino Unido",
+        "im": "Isla de Man",
+        "je": "Jersey",
+        "gg": "Guernsey"
+      }
+    },
+    "provider": {
+      "options": {
+        "dfo": "Fisheries and Oceans Canada (DFO)",
+        "noaa": "NOAA Tides and Currents",
+        "kartverket": "Kartverket (Autoridad Cartográfica de Noruega)",
+        "rijkswaterstaat": "Rijkswaterstaat",
+        "marine_institute": "Marine Institute (Irlanda)",
+        "admiralty": "ADMIRALTY, Oficina Hidrográfica del Reino Unido (requiere una clave de API gratuita)"
+      }
+    }
+  }
+}
