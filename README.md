@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/icon.svg" alt="Mare logo" width="128" height="128">
+  <img src="https://raw.githubusercontent.com/olivierouellet/Mare/main/assets/icon.svg" alt="Mare logo" width="128" height="128">
 </p>
 
 <h1 align="center">Mare</h1>
@@ -24,7 +24,7 @@ It has two parts:
 
 | Part | Folder | What it does |
 |---|---|---|
-| **Mare integration** (`mare_tides`) | [`custom_components/mare_tides`](custom_components/mare_tides) | Adds a tide station from the UI (nearest stations suggested) and creates sensors: current tide level, next high tide, next low tide. |
+| **Mare integration** (`mare_tides`) | [`custom_components/mare_tides`](https://github.com/olivierouellet/Mare/tree/main/custom_components/mare_tides) | Adds a tide station from the UI (nearest stations suggested) and creates sensors: current tide level, next high tide, next low tide. |
 | **Mare Tide Card** | [Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card) | A Lovelace card with the tide curve, every high/low labelled with height and time, a span of up to 72 h, and a visual editor. English, French, Spanish, Dutch and Norwegian. |
 
 The card works **with** the integration (it reads the tide level sensor) or **without** it (it downloads predictions directly from DFO for a station you pick in the card editor; Canadian stations only for now).
@@ -74,7 +74,7 @@ HACS then shows new versions as updates.
 
 **The card:** install the [Mare Tide Card](https://github.com/olivierouellet/Mare-Tide-Card) the same way, as a HACS custom repository of type **Dashboard**.
 
-More details, including changing the station and troubleshooting, are in the **[Setup Guide](Setup%20Guide.md)**.
+More details, including changing the station and troubleshooting, are in the **[Setup Guide](https://github.com/olivierouellet/Mare/blob/main/Setup%20Guide.md)**.
 
 ### Upgrading from 1.0
 
@@ -106,7 +106,7 @@ Le projet comporte deux parties :
 
 | Partie | Dossier | Rôle |
 |---|---|---|
-| **Intégration Mare** (`mare_tides`) | [`custom_components/mare_tides`](custom_components/mare_tides) | Ajoute une station de marée depuis l’interface (stations les plus proches suggérées) et crée des capteurs : niveau de marée actuel, prochaine marée haute, prochaine marée basse. |
+| **Intégration Mare** (`mare_tides`) | [`custom_components/mare_tides`](https://github.com/olivierouellet/Mare/tree/main/custom_components/mare_tides) | Ajoute une station de marée depuis l’interface (stations les plus proches suggérées) et crée des capteurs : niveau de marée actuel, prochaine marée haute, prochaine marée basse. |
 | **Carte Mare Tide Card** | [Mare-Tide-Card](https://github.com/olivierouellet/Mare-Tide-Card#français) | Une carte Lovelace avec la courbe de marée, chaque marée haute et basse identifiée avec sa hauteur et son heure, une plage allant jusqu’à 72 h et un éditeur visuel. En français, anglais, espagnol, néerlandais et norvégien. |
 
 La carte fonctionne **avec** l’intégration (elle lit le capteur de niveau de marée) ou **sans** elle (elle télécharge les prédictions directement de MPO pour une station choisie dans l’éditeur de la carte; stations canadiennes seulement pour l’instant).
@@ -156,7 +156,7 @@ HACS affiche ensuite les nouvelles versions comme des mises à jour.
 
 **La carte :** installez la [Mare Tide Card](https://github.com/olivierouellet/Mare-Tide-Card#français) de la même façon, comme dépôt personnalisé HACS de type **Dashboard** (tableau de bord).
 
-Plus de détails, dont le changement de station et le dépannage, dans le **[guide d’installation](Setup%20Guide.md#français)**.
+Plus de détails, dont le changement de station et le dépannage, dans le **[guide d’installation](https://github.com/olivierouellet/Mare/blob/main/Setup%20Guide.md#français)**.
 
 ### Mise à jour depuis la version 1.0
 
